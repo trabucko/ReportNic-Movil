@@ -2,8 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
-class SelectScreen extends StatelessWidget {
+class SelectScreen extends StatefulWidget {
   const SelectScreen({super.key});
+
+  @override
+  SelectScreenState createState() => SelectScreenState();
+}
+
+class SelectScreenState extends State<SelectScreen> {
+  bool isParamedicoSelected = false;
+  bool isClinicaSelected = false;
+
+  void _selectParamedico() {
+    setState(() {
+      isParamedicoSelected = true;
+      isClinicaSelected = false;
+    });
+  }
+
+  void _selectClinica() {
+    setState(() {
+      isClinicaSelected = true;
+      isParamedicoSelected = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +41,7 @@ class SelectScreen extends StatelessWidget {
             'REPORTNIC',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: screenWidth *
-                  0.07, // Ajusta el tamaño del texto según el ancho de la pantalla
+              fontSize: screenWidth * 0.07,
               color: Colors.black,
             ),
           ),
@@ -30,94 +51,87 @@ class SelectScreen extends StatelessWidget {
         children: [
           Column(
             children: [
-              const SizedBox(
-                height: kToolbarHeight - 10,
-              ),
+              const SizedBox(height: kToolbarHeight - 10),
               Center(
                 child: Text(
                   '¿Quién usará la aplicación?',
                   style: TextStyle(
                     fontFamily: 'Montserrat',
-                    fontSize: screenWidth *
-                        0.05, // Ajusta el tamaño del texto según el ancho de la pantalla
+                    fontSize: screenWidth * 0.05,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              SizedBox(
-                  height: screenHeight *
-                      0.05), // Ajusta el espacio según la altura de la pantalla
+              SizedBox(height: screenHeight * 0.05),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Container(
-                      height: screenWidth *
-                          0.4, // Ajusta el tamaño según el ancho de la pantalla
-                      width: screenWidth * 0.4,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.black,
+                    GestureDetector(
+                      onTap: _selectParamedico,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 500),
+                        height: screenWidth * 0.4,
+                        width: screenWidth * 0.4,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          color:
+                              isParamedicoSelected ? Colors.blue : Colors.white,
+                        ),
+                        child: Icon(
+                          Icons.healing,
+                          size: screenWidth * 0.2,
+                          color: isParamedicoSelected
+                              ? Colors.white
+                              : Colors.black,
                         ),
                       ),
-                      child: Icon(
-                        Icons.healing,
-                        size: screenWidth *
-                            0.2, // Ajusta el tamaño del ícono según el ancho de la pantalla
-                      ),
                     ),
-                    SizedBox(
-                        height: screenHeight *
-                            0.02), // Ajusta el espacio según la altura de la pantalla
+                    SizedBox(height: screenHeight * 0.02),
                     Text(
                       'Paramédico',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Montserrat',
-                        fontSize: screenWidth *
-                            0.04, // Ajusta el tamaño del texto según el ancho de la pantalla
+                        fontSize: screenWidth * 0.04,
                       ),
                     ),
-                    SizedBox(
-                        height: screenHeight *
-                            0.05), // Ajusta el espacio según la altura de la pantalla
-                    Container(
-                      height: screenWidth *
-                          0.4, // Ajusta el tamaño según el ancho de la pantalla
-                      width: screenWidth * 0.4,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.black,
+                    SizedBox(height: screenHeight * 0.05),
+                    GestureDetector(
+                      onTap: _selectClinica,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 500),
+                        height: screenWidth * 0.4,
+                        width: screenWidth * 0.4,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          color:
+                              isClinicaSelected ? Colors.green : Colors.white,
+                        ),
+                        child: Icon(
+                          Icons.local_hospital,
+                          size: screenWidth * 0.2,
+                          color:
+                              isClinicaSelected ? Colors.white : Colors.black,
                         ),
                       ),
-                      child: Icon(
-                        Icons.local_hospital,
-                        size: screenWidth *
-                            0.2, // Ajusta el tamaño del ícono según el ancho de la pantalla
-                      ),
                     ),
-                    SizedBox(
-                        height: screenHeight *
-                            0.02), // Ajusta el espacio según la altura de la pantalla
+                    SizedBox(height: screenHeight * 0.02),
                     Text(
                       'Clínica',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Montserrat',
-                        fontSize: screenWidth *
-                            0.04, // Ajusta el tamaño del texto según el ancho de la pantalla
+                        fontSize: screenWidth * 0.04,
                       ),
                     ),
-                    SizedBox(
-                        height: screenHeight *
-                            0.1), // Espacio adicional para evitar que la onda cubra el texto
+                    SizedBox(height: screenHeight * 0.1),
                   ],
                 ),
               ),
             ],
           ),
           Align(
-            // WAVE
             alignment: Alignment.bottomCenter,
             child: WaveWidget(
               config: CustomConfig(
@@ -132,9 +146,9 @@ class SelectScreen extends StatelessWidget {
                 blur: const MaskFilter.blur(BlurStyle.solid, 10),
               ),
               size: Size(
-                  double.infinity,
-                  screenHeight *
-                      0.15), // Ajusta la altura de la ola según la altura de la pantalla
+                double.infinity,
+                screenHeight * 0.15,
+              ),
               waveAmplitude: 20,
             ),
           ),
