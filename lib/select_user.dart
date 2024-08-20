@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:wave/config.dart';
-import 'package:wave/wave.dart'; // Asegúrate de importar también los paquetes necesarios
+import 'package:wave/wave.dart';
 
 class SelectScreen extends StatelessWidget {
   const SelectScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Obtén las dimensiones de la pantalla
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final screenHeight = mediaQuery.size.height;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Center(
+        title: Center(
           child: Text(
             'REPORTNIC',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: screenWidth *
+                  0.07, // Ajusta el tamaño del texto según el ancho de la pantalla
+              color: Colors.black,
+            ),
           ),
         ),
       ),
@@ -23,61 +33,91 @@ class SelectScreen extends StatelessWidget {
               const SizedBox(
                 height: kToolbarHeight - 10,
               ),
-              const Center(
+              Center(
                 child: Text(
                   '¿Quién usará la aplicación?',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: screenWidth *
+                        0.05, // Ajusta el tamaño del texto según el ancho de la pantalla
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              const SizedBox(height: 40),
+              SizedBox(
+                  height: screenHeight *
+                      0.05), // Ajusta el espacio según la altura de la pantalla
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Container(
-                      height: 180,
-                      width: 180,
+                      height: screenWidth *
+                          0.4, // Ajusta el tamaño según el ancho de la pantalla
+                      width: screenWidth * 0.4,
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: Colors.black,
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.healing,
-                        size: 80,
+                        size: screenWidth *
+                            0.2, // Ajusta el tamaño del ícono según el ancho de la pantalla
                       ),
                     ),
-                    const SizedBox(height: 15),
-                    const Text(
+                    SizedBox(
+                        height: screenHeight *
+                            0.02), // Ajusta el espacio según la altura de la pantalla
+                    Text(
                       'Paramédico',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Montserrat',
+                        fontSize: screenWidth *
+                            0.04, // Ajusta el tamaño del texto según el ancho de la pantalla
+                      ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(
+                        height: screenHeight *
+                            0.05), // Ajusta el espacio según la altura de la pantalla
                     Container(
-                      height: 180,
-                      width: 180,
+                      height: screenWidth *
+                          0.4, // Ajusta el tamaño según el ancho de la pantalla
+                      width: screenWidth * 0.4,
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: Colors.black,
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.local_hospital,
-                        size: 80,
+                        size: screenWidth *
+                            0.2, // Ajusta el tamaño del ícono según el ancho de la pantalla
                       ),
                     ),
-                    const SizedBox(height: 15),
-                    const Text(
+                    SizedBox(
+                        height: screenHeight *
+                            0.02), // Ajusta el espacio según la altura de la pantalla
+                    Text(
                       'Clínica',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Montserrat',
+                        fontSize: screenWidth *
+                            0.04, // Ajusta el tamaño del texto según el ancho de la pantalla
+                      ),
                     ),
+                    SizedBox(
+                        height: screenHeight *
+                            0.1), // Espacio adicional para evitar que la onda cubra el texto
                   ],
                 ),
               ),
             ],
           ),
           Align(
-            //WAVE
+            // WAVE
             alignment: Alignment.bottomCenter,
             child: WaveWidget(
               config: CustomConfig(
@@ -91,7 +131,10 @@ class SelectScreen extends StatelessWidget {
                 heightPercentages: [0.20, 0.23, 0.25, 0.30],
                 blur: const MaskFilter.blur(BlurStyle.solid, 10),
               ),
-              size: const Size(double.infinity, 150),
+              size: Size(
+                  double.infinity,
+                  screenHeight *
+                      0.15), // Ajusta la altura de la ola según la altura de la pantalla
               waveAmplitude: 20,
             ),
           ),
