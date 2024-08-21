@@ -12,11 +12,24 @@ class SelectScreen extends StatefulWidget {
 class SelectScreenState extends State<SelectScreen> {
   bool isParamedicoSelected = false;
   bool isClinicaSelected = false;
+  List<Color> waveColors = [
+    const Color.fromARGB(255, 99, 93, 93).withOpacity(0.9),
+    const Color.fromARGB(255, 99, 93, 93).withOpacity(0.8),
+    const Color.fromARGB(255, 99, 93, 93).withOpacity(0.7),
+    const Color.fromARGB(255, 163, 162, 162),
+  ];
 
   void _selectParamedico() {
     setState(() {
       isParamedicoSelected = true;
       isClinicaSelected = false;
+      // Actualiza los colores de la onda
+      waveColors = [
+        Colors.blue.withOpacity(0.7),
+        Colors.blue.withOpacity(0.6),
+        Colors.blue.withOpacity(0.5),
+        Colors.blue,
+      ];
     });
   }
 
@@ -24,34 +37,52 @@ class SelectScreenState extends State<SelectScreen> {
     setState(() {
       isClinicaSelected = true;
       isParamedicoSelected = false;
+      // Actualiza los colores de la onda
+      waveColors = [
+        Colors.red.withOpacity(0.7),
+        Colors.red.withOpacity(0.6),
+        Colors.red.withOpacity(0.5),
+        Colors.red,
+      ];
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Obtén las dimensiones de la pantalla
     final mediaQuery = MediaQuery.of(context);
     final screenWidth = mediaQuery.size.width;
     final screenHeight = mediaQuery.size.height;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Center(
-          child: Text(
-            'REPORTNIC',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: screenWidth * 0.07,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ),
       body: Stack(
         children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/img/backgroundGrey.jpeg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           Column(
             children: [
-              const SizedBox(height: kToolbarHeight - 10),
+              Container(
+                color: Colors.white.withOpacity(0.0),
+                padding: EdgeInsets.only(
+                    top: mediaQuery.padding.top + 55,
+                    bottom: mediaQuery.padding.bottom + 18),
+                child: Center(
+                  child: Text(
+                    'REPORTNIC',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: screenWidth * 0.07,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
               Center(
                 child: Text(
                   '¿Quién usará la aplicación?',
@@ -105,8 +136,7 @@ class SelectScreenState extends State<SelectScreen> {
                         width: screenWidth * 0.4,
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.black),
-                          color:
-                              isClinicaSelected ? Colors.green : Colors.white,
+                          color: isClinicaSelected ? Colors.red : Colors.white,
                         ),
                         child: Icon(
                           Icons.local_hospital,
@@ -135,12 +165,7 @@ class SelectScreenState extends State<SelectScreen> {
             alignment: Alignment.bottomCenter,
             child: WaveWidget(
               config: CustomConfig(
-                colors: [
-                  Colors.blueAccent.withOpacity(0.3),
-                  Colors.blueAccent.withOpacity(0.5),
-                  Colors.blueAccent.withOpacity(0.7),
-                  Colors.blueAccent,
-                ],
+                colors: waveColors, // Usa la lista de colores dinámica
                 durations: [35000, 19440, 10800, 6000],
                 heightPercentages: [0.20, 0.23, 0.25, 0.30],
                 blur: const MaskFilter.blur(BlurStyle.solid, 10),
