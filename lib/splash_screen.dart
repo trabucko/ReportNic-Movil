@@ -1,73 +1,109 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'select_user.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ReportNic',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Montserrat',
-      ),
-      home: const SplashScreen(),
-    );
-  }
-}
+import 'select_user.dart'; // Asegúrate de que este archivo esté correctamente importado
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _SplashScreenState createState() => _SplashScreenState();
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> fadeAnimation;
+
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const SelectScreen()),
-      );
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2), // Ajusta la duración aquí
+      vsync: this,
+    );
+    fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _preloadResourcesAndNavigate();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _preloadResourcesAndNavigate() async {
+    // Precargar imágenes
+    await precacheImage(
+        const AssetImage('assets/img/backgroundGrey.jpeg'), context);
+
+    // Si necesitas precargar fuentes personalizadas, hazlo aquí
+    const textStyle = TextStyle(
+      fontFamily: 'Montserrat',
+      fontSize: 20,
+    );
+
+    final textPainter = TextPainter(
+      text: const TextSpan(text: 'Preload', style: textStyle),
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout();
+
+    await Future.delayed(const Duration(seconds: 3));
+
+    // Iniciar la animación
+    _controller.forward().then((_) {
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const SelectScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              // Transición de desvanecimiento
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          ),
+        );
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Obtener las dimensiones de la pantalla
     var screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Colors.blue,
+      backgroundColor:
+          Colors.blue, // Asegúrate de que este color sea el deseado
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Icon(
               Icons.local_hospital,
-              size: screenSize.width * 0.25, // 25% del ancho de la pantalla
+              size: screenSize.width * 0.25,
               color: Colors.white,
             ),
-            SizedBox(
-                height:
-                    screenSize.height * 0.02), // 2% de la altura de la pantalla
+            SizedBox(height: screenSize.height * 0.02),
             Text(
               'ReportNic',
               style: TextStyle(
-                fontSize:
-                    screenSize.width * 0.07, // 7% del ancho de la pantalla
+                fontSize: screenSize.width * 0.07,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
+            ),
+            SizedBox(height: screenSize.height * 0.05),
+            const CircularProgressIndicator(
+              color: Colors.white,
             ),
           ],
         ),
