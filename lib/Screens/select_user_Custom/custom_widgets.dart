@@ -32,6 +32,7 @@ class Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      // ignore: deprecated_member_use
       color: Colors.white.withOpacity(0.0),
       padding: EdgeInsets.only(
         top: mediaQuery.padding.top + 55,

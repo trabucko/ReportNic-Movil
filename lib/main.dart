@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Importa este paquete para modificar la barra de estado
-import 'splash_screen.dart';
+import 'Screens/splash_screen.dart';
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding
+      .ensureInitialized(); // Asegura la inicialización de los widgets de Flutter
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  ); // Inicializa Firebase con las opciones correctas
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent, // Hacer la barra de estado transparente
     statusBarIconBrightness: Brightness
