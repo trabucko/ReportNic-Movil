@@ -1,4 +1,3 @@
-// custom_widgets.dart
 import 'package:flutter/material.dart';
 
 // Widget para la imagen de fondo
@@ -42,6 +41,7 @@ class Header extends StatelessWidget {
         child: Text(
           'REPORTNIC',
           style: TextStyle(
+            fontFamily: 'Montserrat',
             fontWeight: FontWeight.bold,
             fontSize: screenWidth * 0.07,
             color: Colors.black,

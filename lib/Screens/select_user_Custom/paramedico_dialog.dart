@@ -1,14 +1,9 @@
-// paramedico_dialog.dart
 import 'package:flutter/material.dart';
 
-class ParamedicoDialog extends StatelessWidget {
-  final VoidCallback onBack;
-
-  const ParamedicoDialog({super.key, required this.onBack});
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
+Future<bool?> showParamedicoDialog(BuildContext context) async {
+  return await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
       title: const Text(
         '¿Estás seguro?',
         style: TextStyle(fontWeight: FontWeight.bold),
@@ -20,8 +15,7 @@ class ParamedicoDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () {
-            onBack(); // Llama al callback cuando se hace clic en 'Atrás'
-            Navigator.of(context).pop(); // Cierra el diálogo
+            Navigator.of(context).pop(false); // Indica rechazo
           },
           child: const Text(
             'Atrás',
@@ -30,7 +24,7 @@ class ParamedicoDialog extends StatelessWidget {
         ),
         TextButton(
           onPressed: () {
-            Navigator.of(context).pop(); // Cierra el diálogo
+            Navigator.of(context).pop(true); // Indica aceptación
           },
           child: const Text(
             'Aceptar',
@@ -38,6 +32,6 @@ class ParamedicoDialog extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
 }

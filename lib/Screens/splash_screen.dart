@@ -8,8 +8,7 @@ class SplashScreen extends StatefulWidget {
   SplashScreenState createState() => SplashScreenState();
 }
 
-class SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> fadeAnimation;
 
@@ -17,7 +16,7 @@ class SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 2), // Ajusta la duración aquí
+      duration: const Duration(seconds: 2), // Duración de la animación
       vsync: this,
     );
     fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -37,12 +36,11 @@ class SplashScreenState extends State<SplashScreen>
 
   Future<void> _preloadResourcesAndNavigate() async {
     // Precargar imágenes
-    await precacheImage(
-        const AssetImage('assets/img/backgroundGrey.jpeg'), context);
+    await precacheImage(const AssetImage('assets/img/backgroundGrey.jpeg'), context);
 
     // Si necesitas precargar fuentes personalizadas, hazlo aquí
     const textStyle = TextStyle(
-      fontFamily: 'Montserrat',
+      fontFamily: 'Jost',
       fontSize: 20,
     );
 
@@ -53,17 +51,13 @@ class SplashScreenState extends State<SplashScreen>
 
     textPainter.layout();
 
-    await Future.delayed(const Duration(seconds: 3));
-
     // Iniciar la animación
     _controller.forward().then((_) {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const SelectScreen(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
+            pageBuilder: (context, animation, secondaryAnimation) => const SelectScreen(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
               // Transición de desvanecimiento
               return FadeTransition(
                 opacity: animation,
@@ -81,8 +75,7 @@ class SplashScreenState extends State<SplashScreen>
     var screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor:
-          Colors.blue, // Asegúrate de que este color sea el deseado
+      backgroundColor: Colors.blue, // Color de fondo del splash screen
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -96,6 +89,7 @@ class SplashScreenState extends State<SplashScreen>
             Text(
               'ReportNic',
               style: TextStyle(
+                fontFamily: 'Jost', // Asegúrate de usar la fuente correcta
                 fontSize: screenSize.width * 0.07,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
