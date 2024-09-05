@@ -105,5 +105,8 @@ flutter:
 
   assets:
     - assets/img/backgroundGrey.jpeg
+    - assets/img/logo_blanco.png
+    - assets/img/logo_azul.png
+    - assets/img/logo_blackout.png
     
 

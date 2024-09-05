@@ -31,10 +31,10 @@ class LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.local_hospital,
-                    size: 100,
-                    color: Color(0xFF007ACC),
+                  Image.asset(
+                    'assets/img/logo_azul.png', // Asegúrate de que la ruta sea correcta
+                    width: 130,
+                    height: 80,
                   ),
                   const SizedBox(height: 20),
                   const Text(

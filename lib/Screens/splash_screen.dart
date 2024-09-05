@@ -80,10 +80,9 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Icon(
-              Icons.local_hospital,
-              size: screenSize.width * 0.25,
-              color: Colors.white,
+            Image.asset(
+              'assets/img/logo_blanco.png',
+              width: screenSize.width * 0.25, // Ajusta el tamaño según tu necesidad
             ),
             SizedBox(height: screenSize.height * 0.02),
             Text(
