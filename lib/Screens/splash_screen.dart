@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'select_user.dart'; // Asegúrate de que este archivo esté correctamente importado
+import 'select_user.dart';
+import './welcome_screen.dart'; // Asegúrate de que este archivo esté correctamente importado
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -56,7 +57,7 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const SelectScreen(),
+            pageBuilder: (context, animation, secondaryAnimation) => const WelcomeScreen(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               // Transición de desvanecimiento
               return FadeTransition(

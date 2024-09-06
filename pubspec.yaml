@@ -36,6 +36,7 @@ dependencies:
   cloud_firestore: ^5.2.0  
   email_validator: ^2.0.0
   wave: ^0.2.2
+  smooth_page_indicator: ^1.2.0+3
 
 dev_dependencies:
   flutter_test:
@@ -108,5 +109,6 @@ flutter:
     - assets/img/logo_blanco.png
     - assets/img/logo_azul.png
     - assets/img/logo_blackout.png
+    - assets/img/logo_amarillo.png
     
 
