@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'select_user.dart';
 import './welcome_screen.dart'; // Asegúrate de que este archivo esté correctamente importado
 
 class SplashScreen extends StatefulWidget {
