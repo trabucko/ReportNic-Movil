@@ -27,7 +27,7 @@ class SelectScreenState extends State<SelectScreen> {
     if (mounted) {
       // Verifica que el widget aún esté montado
       if (accepted == true) {
-        Navigator.pushReplacementNamed(context, '/login'); // Cambia la ruta según tu configuración
+        Navigator.pushReplacementNamed(context, '/tokenscreen'); // Cambia la ruta según tu configuración
       } else {
         setState(() {
           // Resetea los colores al estado inicial si se rechazó

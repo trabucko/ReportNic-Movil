@@ -5,6 +5,7 @@ import 'Screens/login_screen.dart'; // Importa la pantalla de login
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'Screens/select_user.dart';
+import './Screens/token_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Asegura la inicialización de los widgets de Flutter
@@ -42,7 +43,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/selectu': (context) => const SelectScreen(), // Asegúrate de tener esta clase
-        // Agrega otras rutas aquí si es necesario
+        '/tokenscreen': (context) => const TokenScreen(),
       },
     );
   }
