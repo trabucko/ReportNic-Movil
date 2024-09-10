@@ -1,19 +1,89 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TokenScreen extends StatefulWidget {
   const TokenScreen({super.key});
 
   @override
-  State<TokenScreen> createState() => _TokenScreenState();
+  State<TokenScreen> createState() => _CodigoScreenState();
 }
 
-class _TokenScreenState extends State<TokenScreen> {
-  final TextEditingController _tokenController = TextEditingController();
+class _CodigoScreenState extends State<TokenScreen> {
+  final TextEditingController _codigoController = TextEditingController();
+  bool _isLoading = false; // Estado de carga
+  bool _isValid = true; // Estado de validez del código
+  bool _hasTried = false; // Indica si se ha intentado verificar el código
 
   @override
   void dispose() {
-    _tokenController.dispose(); // Liberar recursos cuando no sea necesario
+    _codigoController.dispose();
     super.dispose();
+  }
+
+  Future<void> _verificarCodigo(String codigo) async {
+    setState(() {
+      _isLoading = true; // Mostrar ícono de carga
+      _hasTried = true; // Indicar que se ha intentado verificar
+      _isValid = true; // Reiniciar estado de validez
+    });
+
+    try {
+      final codigoRef = FirebaseFirestore.instance.collection('codigos');
+      QuerySnapshot result = await codigoRef.where('codigo', isEqualTo: codigo).limit(1).get();
+
+      if (!mounted) return;
+
+      if (result.docs.isNotEmpty) {
+        DocumentSnapshot doc = result.docs.first;
+        bool isValido = doc['valido'] ?? false;
+
+        if (isValido) {
+          await doc.reference.update({
+            'valido': false
+          });
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Código válido, registrándose...')),
+            );
+            Navigator.pushNamed(context, '/login'); // Asegúrate de que la ruta esté definida
+          }
+        } else {
+          setState(() {
+            _isValid = false; // Código ya usado
+          });
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Este código ya fue usado.')),
+            );
+          }
+        }
+      } else {
+        setState(() {
+          _isValid = false; // Código inválido
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Código inválido, por favor intente de nuevo')),
+          );
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isValid = false; // Error al verificar
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error verificando el código: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // Ocultar ícono de carga
+        });
+      }
+    }
   }
 
   @override
@@ -29,7 +99,7 @@ class _TokenScreenState extends State<TokenScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 const Text(
-                  'Ingrese el token proporcionado',
+                  'Ingrese el código proporcionado',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -38,38 +108,78 @@ class _TokenScreenState extends State<TokenScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
-                TextField(
-                  controller: _tokenController,
-                  decoration: InputDecoration(
-                    labelText: 'Token',
-                    labelStyle: const TextStyle(color: Colors.blue),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.blue),
-                      borderRadius: BorderRadius.circular(8.0),
+                Stack(
+                  alignment: Alignment.centerRight,
+                  children: [
+                    TextField(
+                      controller: _codigoController,
+                      decoration: InputDecoration(
+                        labelText: 'Código',
+                        labelStyle: const TextStyle(color: Colors.blue),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: _hasTried ? (_isValid ? Colors.green : Colors.red) : Colors.blue,
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: _hasTried ? (_isValid ? Colors.green : Colors.red) : Colors.blue,
+                            width: 2.0,
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.security,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      cursorColor: Colors.blue,
+                      keyboardType: TextInputType.text,
+                      onChanged: (value) {
+                        // Reiniciar el estado si el usuario está escribiendo
+                        setState(() {
+                          _isValid = true;
+                          _hasTried = false;
+                        });
+                      },
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.blue, width: 2.0),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.security,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  cursorColor: Colors.blue,
-                  keyboardType: TextInputType.text,
+                    if (_isLoading)
+                      const Padding(
+                        padding: EdgeInsets.only(right: 8.0),
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    if (!_isLoading && !_isValid && _hasTried)
+                      const Padding(
+                        padding: EdgeInsets.only(right: 8.0),
+                        child: Icon(
+                          Icons.cancel,
+                          color: Colors.red,
+                        ),
+                      ),
+                    if (!_isLoading && _isValid && _hasTried)
+                      const Padding(
+                        padding: EdgeInsets.only(right: 8.0),
+                        child: Icon(
+                          Icons.check,
+                          color: Colors.green,
+                        ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () {
-                    String token = _tokenController.text.trim();
-                    if (token.isNotEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Token ingresado correctamente')),
-                      );
+                    String codigo = _codigoController.text.trim();
+                    if (codigo.isNotEmpty) {
+                      _verificarCodigo(codigo);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Por favor ingrese un token válido')),
+                        const SnackBar(content: Text('Por favor ingrese un código válido')),
                       );
                     }
                   },
@@ -81,13 +191,13 @@ class _TokenScreenState extends State<TokenScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: const Text(
-                    'Verificar Token',
+                    'Verificar Código',
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
                 const SizedBox(height: 50),
                 const Text(
-                  'Si desea Registrarse como paramédico, deberá ingresar el token dado por un administrador de su unidad de salud.',
+                  'Si desea registrarse como paramédico, deberá ingresar el código dado por un administrador de su unidad de salud.',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.blueGrey,
@@ -96,7 +206,7 @@ class _TokenScreenState extends State<TokenScreen> {
                 ),
                 const SizedBox(height: 20),
                 Image.asset(
-                  'assets/img/logo_blackout.png', // Revisa que esta ruta sea válida
+                  'assets/img/logo_blackout.png',
                   width: 30,
                   height: 20,
                   errorBuilder: (context, error, stackTrace) {
@@ -129,11 +239,11 @@ class _TokenScreenState extends State<TokenScreen> {
                         style: TextStyle(color: Colors.black),
                       ),
                       content: const Text(
-                        'Para registrarse como paramédico, necesita un token proporcionado por un administrador. '
-                        'Este token es único y se utiliza para que usted pueda registrarse en nuestra plataforma. Si usted '
-                        'no ha recibido un token antes de registrarse en ReportNic , por favor Comunicarse con el administrador'
-                        ' de su unidad de salud, Si tiene problemas con el registro, por favor comuníquese con el soporte técnico.'
-                        '\n\nAtentamente Soporte de ReportNic.',
+                        'Para registrarse como paramédico, necesita un código proporcionado por un administrador. '
+                        'Este código es único y se utiliza para que usted pueda registrarse en nuestra plataforma. Si usted '
+                        'no ha recibido un código antes de registrarse en ReportNic, por favor comuníquese con el administrador '
+                        'de su unidad de salud. Si tiene problemas con el registro, por favor comuníquese con el soporte técnico.'
+                        '\n\nAtentamente, Soporte de ReportNic.',
                         style: TextStyle(color: Colors.black54),
                       ),
                       actions: <Widget>[
