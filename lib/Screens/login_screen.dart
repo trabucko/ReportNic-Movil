@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'package:email_validator/email_validator.dart'; // Asegúrate de importar el archivo auth_Services.dart
+import 'package:email_validator/email_validator.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,6 +17,14 @@ class LoginScreenState extends State<LoginScreen> {
   String? _emailError;
   String? _passwordError;
   final AuthService _authService = AuthService();
+
+  String? _selectedUnidad;
+  final List<String> _unidadesAmbulancia = [
+    'Unidad 101',
+    'Unidad 102',
+    'Unidad 103',
+    'Unidad 104'
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +80,8 @@ class LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
+
+                  const SizedBox(height: 5),
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
@@ -90,6 +100,39 @@ class LoginScreenState extends State<LoginScreen> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor ingresa una contraseña';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  // ComboBox para seleccionar unidad de ambulancia
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(
+                      labelText: 'Unidad de Ambulancia',
+                      labelStyle: TextStyle(
+                        fontFamily: 'Jost',
+                        color: Color(0xFF007ACC),
+                      ),
+                      border: OutlineInputBorder(),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFF007ACC)),
+                      ),
+                    ),
+                    value: _selectedUnidad,
+                    items: _unidadesAmbulancia.map((unidad) {
+                      return DropdownMenuItem<String>(
+                        value: unidad,
+                        child: Text(unidad),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedUnidad = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Por favor selecciona una unidad';
                       }
                       return null;
                     },

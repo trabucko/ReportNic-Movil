@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
           elevation: 0, // Quitar la sombra del AppBar
         ),
       ),
-      home: const SplashScreen(),
+      home: const TokenScreen(), //CAMBIAR AL FINAL DEL TRABAJO
       routes: {
         '/login': (context) => const LoginScreen(),
         '/selectu': (context) => const SelectScreen(), // Asegúrate de tener esta clase
