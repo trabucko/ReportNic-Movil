@@ -37,6 +37,10 @@ dependencies:
   email_validator: ^2.0.0
   wave: ^0.2.2
   smooth_page_indicator: ^1.2.0+3
+  http: ^1.2.2
+  provider: ^6.1.2
+  avatar_glow: ^3.0.1
+  voice_to_text: ^1.0.3
 
 dev_dependencies:
   flutter_test:

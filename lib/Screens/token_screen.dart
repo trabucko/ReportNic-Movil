@@ -46,7 +46,7 @@ class _CodigoScreenState extends State<TokenScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Código válido, registrándose...')),
             );
-            Navigator.pushNamed(context, '/login'); // Asegúrate de que la ruta esté definida
+            Navigator.pushNamed(context, '/registroScreen'); // Asegúrate de que la ruta esté definida
           }
         } else {
           setState(() {
