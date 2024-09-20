@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class TokenScreen extends StatefulWidget {
-  const TokenScreen({super.key});
+class CodigoScreen extends StatefulWidget {
+  const CodigoScreen({super.key});
 
   @override
-  State<TokenScreen> createState() => _CodigoScreenState();
+  State<CodigoScreen> createState() => _CodigoScreenState();
 }
 
-class _CodigoScreenState extends State<TokenScreen> {
+class _CodigoScreenState extends State<CodigoScreen> {
   final TextEditingController _codigoController = TextEditingController();
   bool _isLoading = false; // Estado de carga
   bool _isValid = true; // Estado de validez del código

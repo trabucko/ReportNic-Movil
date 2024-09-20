@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:voice_to_text/voice_to_text.dart';
+import './ficha_screen.dart';
 
 class SpeechScreen extends StatefulWidget {
   const SpeechScreen({super.key});
@@ -63,6 +65,19 @@ class _SpeechScreenState extends State<SpeechScreen> {
     });
   }
 
+  Future<void> _logout() async {
+    // Lógica de cierre de sesión, por ejemplo, limpiar el estado de autenticación
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', false); // Establece isLoggedIn como false
+
+    // Navega a la pantalla de login después de un pequeño retraso
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/login');
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,10 +97,28 @@ class _SpeechScreenState extends State<SpeechScreen> {
                   centerTitle: true,
                   backgroundColor: Colors.transparent,
                   elevation: 0.0,
-                  title: const Text(
-                    "ReportNic",
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                  title: const Center(
+                    child: Text(
+                      "ReportNic",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
+                  actions: [
+                    GestureDetector(
+                      onTap: _logout, // Llama a la función para cerrar sesión
+                      child: const Padding(
+                        padding: EdgeInsets.only(right: 10.0),
+                        child: Icon(
+                          Icons.logout,
+                          color: Colors.black,
+                          size: 30, // Tamaño del ícono
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Expanded(
@@ -145,8 +178,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 onTapCancel: _stopListening,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
-                  width: _isListening ? 1900 : 1800, // Aumenta el tamaño cuando está escuchando
-                  height: _isListening ? 120 : 100,
+                  width: _isListening ? 500 : 400, // Ajusta el tamaño cuando está escuchando
+                  height: _isListening ? 130 : 120,
                   decoration: BoxDecoration(
                     color: _isListening ? Colors.green : Colors.black, // Cambia a verde cuando está escuchando
                     borderRadius: const BorderRadius.only(
@@ -166,7 +199,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
           // Botón para editar el texto
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
-            bottom: _isListening ? 120 : 100, // Mueve el botón cuando se activa el micrófono
+            bottom: _isListening ? 130 : 120, // Mueve el botón cuando se activa el micrófono
             left: 16,
             child: FloatingActionButton(
               onPressed: _toggleEditMode,
@@ -181,11 +214,24 @@ class _SpeechScreenState extends State<SpeechScreen> {
           // Botón de enviar
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
-            bottom: _isListening ? 120 : 100, // Mueve el botón cuando se activa el micrófono
+            bottom: _isListening ? 130 : 120, // Mueve el botón cuando se activa el micrófono
             right: 16,
             child: FloatingActionButton(
+              heroTag: null,
               onPressed: () {
-                // Acción de enviar el texto transcrito
+                if (_transcribedText.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FichaPacienteScreen(transcribedText: _transcribedText),
+                    ),
+                  );
+                } else {
+                  // Muestra un mensaje si el texto está vacío
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No hay texto transcrito para enviar')),
+                  );
+                }
               },
               backgroundColor: Colors.black,
               child: const Icon(Icons.send, color: Colors.white),

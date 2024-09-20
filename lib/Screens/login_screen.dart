@@ -1,6 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Importa SharedPreferences
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,11 +15,10 @@ class LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  String? _emailError;
-  String? _passwordError;
-  final AuthService _authService = AuthService();
-
   String? _selectedUnidad;
+  String? _errorMessage;
+  bool _obscurePassword = true; // Variable para controlar la visibilidad de la contraseña
+
   final List<String> _unidadesAmbulancia = [
     'Unidad 101',
     'Unidad 102',
@@ -40,7 +40,7 @@ class LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/img/logo_azul.png', // Asegúrate de que la ruta sea correcta
+                    'assets/img/logo_azul.png',
                     width: 130,
                     height: 80,
                   ),
@@ -55,19 +55,33 @@ class LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
+                  if (_errorMessage != null)
+                    Row(
+                      children: [
+                        const Icon(Icons.error, color: Colors.red),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  const SizedBox(height: 10),
                   TextFormField(
                     controller: _emailController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
+                      icon: Icon(Icons.email, color: Color(0xFF007ACC)), // Ícono de correo
                       labelText: 'Correo Electrónico',
-                      labelStyle: const TextStyle(
+                      labelStyle: TextStyle(
                         fontFamily: 'Jost',
                         color: Color(0xFF007ACC),
                       ),
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
+                      border: OutlineInputBorder(),
+                      focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Color(0xFF007ACC)),
                       ),
-                      errorText: _emailError,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -80,11 +94,22 @@ class LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
-
-                  const SizedBox(height: 5),
                   TextFormField(
                     controller: _passwordController,
+                    obscureText: _obscurePassword,
                     decoration: InputDecoration(
+                      icon: const Icon(Icons.lock, color: Color(0xFF007ACC)), // Ícono de candado
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                          color: const Color(0xFF007ACC),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
                       labelText: 'Contraseña',
                       labelStyle: const TextStyle(
                         fontFamily: 'Jost',
@@ -94,9 +119,7 @@ class LoginScreenState extends State<LoginScreen> {
                       focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Color(0xFF007ACC)),
                       ),
-                      errorText: _passwordError,
                     ),
-                    obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor ingresa una contraseña';
@@ -105,9 +128,9 @@ class LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  // ComboBox para seleccionar unidad de ambulancia
                   DropdownButtonFormField<String>(
                     decoration: const InputDecoration(
+                      icon: Icon(Icons.local_hospital, color: Color(0xFF007ACC)), // Ícono de ambulancia
                       labelText: 'Unidad de Ambulancia',
                       labelStyle: TextStyle(
                         fontFamily: 'Jost',
@@ -158,6 +181,18 @@ class LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/tokenscreen');
+                    },
+                    child: const Text(
+                      '¿Todavía no tienes una cuenta? Regístrate aquí',
+                      style: TextStyle(
+                        color: Color(0xFF007ACC),
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -167,28 +202,41 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // Guardar el estado de inicio de sesión en SharedPreferences
+  Future<void> _saveLoginState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
+  }
+
   Future<void> _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-    final result = await _authService.signInWithEmail(email, password);
+    final firestore = FirebaseFirestore.instance;
 
-    if (result == null) {
+    try {
+      final querySnapshot = await firestore.collection('usuarios').where('email', isEqualTo: email).where('password', isEqualTo: password).get();
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Inicio de sesión exitoso')),
-        );
-        // Navegar a otra pantalla si es necesario
+        if (querySnapshot.docs.isNotEmpty) {
+          // Guardar el estado de inicio de sesión
+          await _saveLoginState();
+
+          // Autenticación exitosa: Navegar a la pantalla principal
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, '/home');
+          }
+        } else {
+          setState(() {
+            _errorMessage = 'Correo electrónico o contraseña incorrectos';
+          });
+        }
       }
-    } else {
-      setState(() {
-        _emailError = result.contains('correo electrónico') ? result : null;
-        _passwordError = result.contains('contraseña') ? result : null;
-      });
+    } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result)),
-        );
+        setState(() {
+          _errorMessage = 'Error al iniciar sesión';
+        });
       }
     }
   }

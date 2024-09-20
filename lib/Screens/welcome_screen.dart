@@ -11,6 +11,7 @@ class WelcomeScreen extends StatefulWidget {
 class WelcomeScreenState extends State<WelcomeScreen> {
   final PageController _pageController = PageController();
   final ValueNotifier<Color> _indicatorColorNotifier = ValueNotifier<Color>(Colors.white);
+  final ValueNotifier<Color> _skipButtonColorNotifier = ValueNotifier<Color>(Colors.white);
 
   @override
   void initState() {
@@ -20,8 +21,10 @@ class WelcomeScreenState extends State<WelcomeScreen> {
       setState(() {
         if (pageIndex == 1) {
           _indicatorColorNotifier.value = Colors.black; // Color para la página blanca
+          _skipButtonColorNotifier.value = Colors.black; // Color del texto "Omitir" en la página blanca
         } else {
           _indicatorColorNotifier.value = Colors.white; // Color para las otras páginas
+          _skipButtonColorNotifier.value = Colors.white; // Color del texto "Omitir" en otras páginas
         }
       });
     });
@@ -43,6 +46,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                 titleColor: Colors.white,
                 descriptionColor: Colors.white,
                 showStartButton: false,
+                showSkipButton: true,
               ),
               _buildPage(
                 color: Colors.white,
@@ -52,15 +56,17 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                 titleColor: Colors.black,
                 descriptionColor: Colors.black,
                 showStartButton: false,
+                showSkipButton: true,
               ),
               _buildPage(
                 color: Colors.grey[900]!,
-                title: 'Traslado de Pacientes',
-                description: 'La aplicación también es útil durante el traslado de pacientes, asegurando que los hospitales reciban la información necesaria para una atención eficaz y oportuna.',
+                title: 'Ambulancia en tiempo real',
+                description: 'La aplicación al notificar al hospital , comparte datos de ubicacion en tiempo real , esto permite visualizar de manera precisa que tan lejos o cerca esta la ambulancia del hospital.',
                 image: 'assets/img/logo_amarillo.png',
                 titleColor: Colors.white,
                 descriptionColor: Colors.white,
                 showStartButton: true,
+                showSkipButton: false,
               ),
             ],
           ),
@@ -100,63 +106,96 @@ class WelcomeScreenState extends State<WelcomeScreen> {
     required Color titleColor,
     required Color descriptionColor,
     required bool showStartButton,
+    required bool showSkipButton,
   }) {
     return Container(
       color: color,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Stack(
         children: [
-          Image.asset(
-            image,
-            width: 200,
-            height: 200,
+          Align(
+            alignment: Alignment.topRight,
+            child: showSkipButton
+                ? ValueListenableBuilder<Color>(
+                    valueListenable: _skipButtonColorNotifier,
+                    builder: (context, skipButtonColor, child) {
+                      return Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(context, '/login'); // Asegúrate de definir la ruta '/tokenscreen'
+                          },
+                          child: Text(
+                            'Omitir',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: skipButtonColor,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                : const SizedBox.shrink(),
           ),
-          const SizedBox(height: 20),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: titleColor,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Text(
-              description,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: descriptionColor,
-              ),
-            ),
-          ),
-          if (showStartButton)
-            Padding(
-              padding: const EdgeInsets.all(40.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Maneja el evento del botón "Comenzar"
-                  Navigator.pushReplacementNamed(context, '/selectu'); // Asegúrate de definir la ruta '/home'
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black, backgroundColor: Colors.amber, // Color del texto del botón
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // Radio de borde del botón
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15), // Padding interno
-                  elevation: 5, // Sombra del botón
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  image,
+                  width: 200,
+                  height: 200,
                 ),
-                child: const Text(
-                  'Comenzar',
+                const SizedBox(height: 20),
+                Text(
+                  title,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
+                    color: titleColor,
                   ),
                 ),
-              ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text(
+                    description,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: descriptionColor,
+                    ),
+                  ),
+                ),
+                if (showStartButton)
+                  Padding(
+                    padding: const EdgeInsets.all(40.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, '/login'); // Asegúrate de definir la ruta '/codigo_screen'
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: Colors.amber, // Color del texto del botón
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30), // Radio de borde del botón
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15), // Padding interno
+                        elevation: 5, // Sombra del botón
+                      ),
+                      child: const Text(
+                        'Comenzar',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
+          ),
         ],
       ),
     );

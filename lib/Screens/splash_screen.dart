@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import './welcome_screen.dart'; // Asegúrate de que este archivo esté correctamente importado
+import 'package:reportnic/Screens/login_screen.dart';
+import 'package:reportnic/Screens/welcome_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,7 +18,7 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 2), // Duración de la animación
+      duration: const Duration(seconds: 2),
       vsync: this,
     );
     fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -35,30 +37,25 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
   }
 
   Future<void> _preloadResourcesAndNavigate() async {
-    // Precargar imágenes
-    await precacheImage(const AssetImage('assets/img/backgroundGrey.jpeg'), context);
-
-    // Si necesitas precargar fuentes personalizadas, hazlo aquí
-    const textStyle = TextStyle(
-      fontFamily: 'Jost',
-      fontSize: 20,
-    );
-
-    final textPainter = TextPainter(
-      text: const TextSpan(text: 'Preload', style: textStyle),
-      textDirection: TextDirection.ltr,
-    );
-
-    textPainter.layout();
+    // Obtener SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool hasSeenWelcomeScreen = prefs.getBool('hasSeenWelcomeScreen') ?? false;
 
     // Iniciar la animación
     _controller.forward().then((_) {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const WelcomeScreen(),
+            pageBuilder: (context, animation, secondaryAnimation) {
+              if (!hasSeenWelcomeScreen) {
+                // Marca que la pantalla de bienvenida ha sido vista
+                prefs.setBool('hasSeenWelcomeScreen', true);
+                return const WelcomeScreen();
+              } else {
+                return const LoginScreen(); // Cambia esto por la pantalla que debería mostrarse a los usuarios que ya han visto el WelcomeScreen
+              }
+            },
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              // Transición de desvanecimiento
               return FadeTransition(
                 opacity: animation,
                 child: child,
@@ -75,20 +72,20 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
     var screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Colors.blue, // Color de fondo del splash screen
+      backgroundColor: Colors.blue,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Image.asset(
               'assets/img/logo_blanco.png',
-              width: screenSize.width * 0.25, // Ajusta el tamaño según tu necesidad
+              width: screenSize.width * 0.25,
             ),
             SizedBox(height: screenSize.height * 0.02),
             Text(
               'ReportNic',
               style: TextStyle(
-                fontFamily: 'Jost', // Asegúrate de usar la fuente correcta
+                fontFamily: 'Jost',
                 fontSize: screenSize.width * 0.07,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,

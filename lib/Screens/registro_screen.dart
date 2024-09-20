@@ -260,7 +260,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                     onPressed: () async {
                       if (_formKey.currentState?.validate() == true) {
                         final cedula = _cedulaController.text.trim();
-                        final cedulaValida = await _isCedulaValid(cedula);
+                        final cedulaValida = _isCedulaValid(cedula);
 
                         if (cedulaValida) {
                           _register();
@@ -312,6 +312,7 @@ class RegisterScreenState extends State<RegisterScreen> {
         'cedula': cedula,
         'telefono': telefono,
         'email': email,
+        'password': password,
       });
 
       // Usar Navigator.pushReplacement dentro del contexto válido
@@ -322,7 +323,6 @@ class RegisterScreenState extends State<RegisterScreen> {
         }
       });
     } catch (e) {
-      print(e);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) {
           // Verificar que el contexto aún esté montado
@@ -345,7 +345,6 @@ class RegisterScreenState extends State<RegisterScreen> {
         throw Exception('Error al verificar la cédula');
       }
     } catch (e) {
-      print(e);
       return false;
     }
   }
