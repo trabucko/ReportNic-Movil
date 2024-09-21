@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import './mapa_screen.dart'; // Asegúrate de importar MapScreen para la navegación
 
 class FichaPacienteScreen extends StatefulWidget {
   final String transcribedText;
@@ -71,7 +72,6 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 40),
-            // Texto "Presión" encima de los TextFields de presión sistólica/diastólica
             const Center(
               child: Text(
                 'Presión',
@@ -82,7 +82,7 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Campo de texto para Sistólica con diseño rojo y texto e íconos blancos
+                // Campo de texto para Sistólica con diseño rojo
                 Column(
                   children: [
                     const Text(
@@ -121,7 +121,6 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
                     ),
                   ],
                 ),
-                // El "/" entre Sistólica y Diastólica
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8.0),
                   child: Text(
@@ -129,7 +128,7 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ),
-                // Campo de texto para Diastólica con diseño azul y texto e íconos blancos
+                // Campo de texto para Diastólica con diseño azul
                 Column(
                   children: [
                     const Text(
@@ -179,6 +178,17 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navega a la pantalla MapScreen cuando se presiona el botón
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MapScreen()),
+          );
+        }, // Ícono de "Siguiente"
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.arrow_forward), // Color del botón flotante
       ),
     );
   }

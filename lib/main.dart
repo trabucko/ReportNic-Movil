@@ -11,9 +11,14 @@ import 'package:provider/provider.dart'; // Importa Provider
 import 'services/auth_service.dart'; // Asegúrate de importar el archivo donde está AuthState
 import 'Screens/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart'; // Asegúrate de tener este paquete instalado
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Asegura la inicialización de los widgets de Flutter
+
+  String accessToken = 'sk.eyJ1IjoiYXhlbDc3NyIsImEiOiJjbTFhOXp1cHAxb3NkMmxwdWdlejcwN2V1In0.9QQDjdvbGK1qt6d5CGNhBw'; // Reemplaza con tu token real
+  MapboxOptions.setAccessToken(accessToken);
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   ); // Inicializa Firebase con las opciones correctas
