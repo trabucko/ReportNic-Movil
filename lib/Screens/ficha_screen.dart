@@ -184,7 +184,7 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
           // Navega a la pantalla MapScreen cuando se presiona el botón
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => MapScreen()),
+            MaterialPageRoute(builder: (context) => const MapScreen()),
           );
         }, // Ícono de "Siguiente"
         backgroundColor: Colors.blue,
