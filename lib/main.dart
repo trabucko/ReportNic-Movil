@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Importa este paquete para modificar la barra de estado
 import 'Screens/splash_screen.dart';
 import 'Screens/login_screen.dart'; // Importa la pantalla de login
-import 'Screens/select_user.dart';
 import 'Screens/registro_screen.dart';
 import './Screens/codigo_screen.dart';
 import 'firebase_options.dart'; // Importa la librería para trabajar con la base de datos
@@ -64,7 +63,6 @@ class MyApp extends StatelessWidget {
       home: isLoggedIn ? const SpeechScreen() : const SplashScreen(), // Cambiar dependiendo del estado de inicio de sesión
       routes: {
         '/login': (context) => const LoginScreen(),
-        '/selectu': (context) => const SelectScreen(),
         '/tokenscreen': (context) => const CodigoScreen(),
         '/registroScreen': (context) => const RegisterScreen(),
         '/home': (context) => const SpeechScreen(),

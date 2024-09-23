@@ -114,12 +114,11 @@ flutter:
 
 
   assets:
-    - assets/img/backgroundGrey.jpeg
     - assets/img/logo_blanco.png
     - assets/img/logo_azul.png
     - assets/img/logo_blackout.png
     - assets/img/logo_amarillo.png
-    - assets/img/selectu_background.jpeg
     - assets/img/ambulance_marker64px.png
+    - assets/img/hospital_marker.png
     
 
