@@ -32,12 +32,16 @@ class MapaScreenState extends State<MapScreen> {
           content: Text('¿Estás seguro de que deseas seleccionar el hospital: $hospitalName?'),
           actions: [
             ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 98, 108, 250)), // Cambia el color del botón a azul
+
               onPressed: () {
                 Navigator.of(context).pop(); // Cierra el diálogo
               },
-              child: const Text('Cancelar'),
+              child: const Text('Cancelar', style: TextStyle(color: Colors.white)),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 98, 108, 250)), // Cambia el color del botón a azul
+
               onPressed: () {
                 setState(() {
                   _selectedHospital = {
@@ -52,7 +56,7 @@ class MapaScreenState extends State<MapScreen> {
                 onConfirm();
                 // Cierra el diálogo
               },
-              child: const Text('Aceptar'),
+              child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -266,7 +270,7 @@ class MapaScreenState extends State<MapScreen> {
             styleUri: "mapbox://styles/mapbox/streets-v11",
           ),
           Positioned(
-            top: 10,
+            bottom: 0,
             left: 10,
             right: 10,
             child: Container(
@@ -282,41 +286,33 @@ class MapaScreenState extends State<MapScreen> {
                   ),
                 ],
               ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _isExpanded = !_isExpanded;
-                          });
-                        },
-                        child: const Text(
-                          'Hospitales Cercanos:                             ',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
+              child: Column(children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Hospitales Cercanos:                             ',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        _isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
                       ),
-                      IconButton(
-                        icon: Icon(
-                          _isExpanded ? Icons.arrow_drop_down : Icons.arrow_drop_up,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isExpanded = !_isExpanded;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  if (_isExpanded)
-                    SizedBox(
-                        height: 200, // Ajusta la altura según sea necesario
-                        child: Scrollbar(
-                          thumbVisibility: false,
-                          child: ListView.builder(
+                      onPressed: () {
+                        setState(() {
+                          _isExpanded = !_isExpanded;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                if (_isExpanded)
+                  Container(
+                    height: 200, // Ajusta la altura según sea necesario
+                    child: nearbyHospitals.isNotEmpty
+                        ? ListView.builder(
+                            shrinkWrap: true,
                             itemCount: nearbyHospitals.length,
                             itemBuilder: (context, index) {
                               final hospital = nearbyHospitals[index];
@@ -381,10 +377,10 @@ class MapaScreenState extends State<MapScreen> {
                                 },
                               );
                             },
-                          ),
-                        )),
-                ],
-              ),
+                          )
+                        : const Text('Buscando hospitales...'),
+                  ),
+              ]),
             ),
           ),
         ],
