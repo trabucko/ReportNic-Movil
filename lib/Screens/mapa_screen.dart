@@ -4,9 +4,12 @@ import 'package:geolocator/geolocator.dart' as geo;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:reportnic/Screens/info_envio.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  final Map<String, dynamic> fichaPaciente;
+
+  const MapScreen({super.key, required this.fichaPaciente});
 
   @override
   MapaScreenState createState() => MapaScreenState();
@@ -17,11 +20,52 @@ class MapaScreenState extends State<MapScreen> {
   geo.Position? _currentPosition;
   List<dynamic> nearbyHospitals = [];
   bool _isExpanded = true;
+  late final Map<String, dynamic> fichaPaciente;
+  Map<String, dynamic>? _selectedHospital;
+
+  void _showConfirmationDialog(int index, String hospitalName, Function onConfirm) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmar Selección'),
+          content: Text('¿Estás seguro de que deseas seleccionar el hospital: $hospitalName?'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _selectedHospital = {
+                    'name': hospitalName,
+                    'coordinates': {
+                      'latitude': nearbyHospitals[index]['geometry']['coordinates'][1],
+                      'longitude': nearbyHospitals[index]['geometry']['coordinates'][0],
+                    },
+                    'details': nearbyHospitals[index],
+                  };
+                });
+                onConfirm();
+                // Cierra el diálogo
+              },
+              child: const Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    fichaPaciente = widget.fichaPaciente;
+    _selectedHospital = {};
   }
 
   void _onMapCreated(MapboxMap mapboxMap) {
@@ -269,10 +313,10 @@ class MapaScreenState extends State<MapScreen> {
                   const SizedBox(height: 10),
                   if (_isExpanded)
                     SizedBox(
-                      height: 200, // Ajusta la altura según sea necesario
-                      child: Scrollbar(
-                        thumbVisibility: false, // Muestra siempre el "dedo" de desplazamiento
-                        child: ListView.builder(
+                        height: 200, // Ajusta la altura según sea necesario
+                        child: Scrollbar(
+                          thumbVisibility: false,
+                          child: ListView.builder(
                             itemCount: nearbyHospitals.length,
                             itemBuilder: (context, index) {
                               final hospital = nearbyHospitals[index];
@@ -283,8 +327,8 @@ class MapaScreenState extends State<MapScreen> {
 
                               return FutureBuilder<String>(
                                 future: Future.wait([
-                                  _calculateDistance(latHospital, lonHospital), // Calcula la distancia
-                                  _calculateETA(latHospital, lonHospital), // Calcula el ETA
+                                  _calculateDistance(latHospital, lonHospital),
+                                  _calculateETA(latHospital, lonHospital),
                                 ]).then((List<String> results) => '${results[0]} - Llegando en: ${results[1]}'),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -298,17 +342,47 @@ class MapaScreenState extends State<MapScreen> {
                                       tileColor: Colors.blue[50],
                                       hoverColor: Colors.black,
                                       title: Text(hospitalName),
-                                      subtitle: Text('Distancia: $info'),
+                                      subtitle: Text(
+                                        'Distancia: $info',
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                      trailing: nearbyHospitals[index]['selected'] == true ? const Icon(Icons.check, color: Colors.green) : null,
                                       onTap: () {
-                                        // Acción cuando se selecciona el hospital
+                                        final hospitalName = nearbyHospitals[index]['text'];
+                                        _showConfirmationDialog(index, hospitalName, () {
+                                          setState(() {
+                                            // Cambia el estado de selección
+                                            for (var h in nearbyHospitals) {
+                                              h['selected'] = false;
+                                            } // Deselecciona otros
+                                            nearbyHospitals[index]['selected'] = true; // Selecciona el hospital actual
+                                            _selectedHospital = {
+                                              'name': hospitalName,
+                                              'coordinates': {
+                                                'latitude': latHospital,
+                                                'longitude': lonHospital,
+                                              },
+                                              'details': hospital,
+                                            };
+                                          });
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => InfoEnvio(
+                                                fichaPaciente: fichaPaciente,
+                                                hospitalSeleccionado: _selectedHospital!,
+                                              ),
+                                            ),
+                                          );
+                                        });
                                       },
                                     ),
                                   );
                                 },
                               );
-                            }),
-                      ),
-                    ),
+                            },
+                          ),
+                        )),
                 ],
               ),
             ),
