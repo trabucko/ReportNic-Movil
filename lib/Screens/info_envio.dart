@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:reportnic/Screens/home_screen.dart';
 
 class InfoEnvio extends StatelessWidget {
   final Map<String, dynamic> fichaPaciente;
@@ -9,6 +11,42 @@ class InfoEnvio extends StatelessWidget {
     required this.fichaPaciente,
     required this.hospitalSeleccionado,
   });
+
+  void _enviarDatos(BuildContext context) async {
+    final firestore = FirebaseFirestore.instance;
+    final fechaYHoraActual = DateTime.now();
+    final emergenciaId = await _getEmergenciaId();
+
+    await firestore.collection('Emergencias').doc('Emergencia $emergenciaId').set({
+      'fichaPaciente': fichaPaciente,
+      'hospitalSeleccionado': {
+        'nombre': hospitalSeleccionado['name'],
+        'coordenadas': hospitalSeleccionado['coordinates'],
+      },
+      'fechaYHora': fechaYHoraActual,
+    });
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Emergencia enviada'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const SpeechScreen()),
+      );
+    }
+  }
+
+  Future<int> _getEmergenciaId() async {
+    final firestore = FirebaseFirestore.instance;
+    final enviosRef = firestore.collection('Emergencias');
+    final querySnapshot = await enviosRef.get();
+    final emergenciaId = querySnapshot.docs.length + 1;
+    return emergenciaId;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,9 +161,7 @@ class InfoEnvio extends StatelessWidget {
             Align(
               alignment: Alignment.bottomRight,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  // Acción para enviar datos
-                },
+                onPressed: () => _enviarDatos(context),
                 icon: const Icon(Icons.send, color: Colors.white),
                 label: const Text(
                   'Enviar Datos',
