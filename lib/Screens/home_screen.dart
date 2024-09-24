@@ -82,45 +82,75 @@ class _SpeechScreenState extends State<SpeechScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      // Agregar el Drawer
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.black,
+              ),
+              child: Text(
+                'Opciones',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Inicio'),
+              onTap: () {
+                Navigator.pop(context); // Cerrar el Drawer
+                // Lógica para la opción de "Inicio"
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Configuración'),
+              onTap: () {
+                Navigator.pop(context); // Cerrar el Drawer
+                // Lógica para la opción de "Configuración"
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Cerrar sesión'),
+              onTap: _logout, // Lógica para cerrar sesión
+            ),
+          ],
+        ),
+      ),
       body: Stack(
         children: [
           Column(
             children: [
               Container(
-                height: 80,
-                color: Colors.transparent,
-                child: AppBar(
-                  leading: const Icon(
-                    Icons.sort_rounded,
-                    color: Colors.black,
-                  ),
-                  centerTitle: true,
-                  backgroundColor: Colors.transparent,
-                  elevation: 0.0,
-                  title: const Center(
-                    child: Text(
-                      "ReportNic",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
+                  height: 80,
+                  color: Colors.transparent,
+                  child: AppBar(
+                    leading: Builder(
+                      builder: (context) {
+                        return IconButton(
+                          icon: const Icon(Icons.sort_rounded),
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer(); // Abre el Drawer al hacer clic
+                          },
+                        );
+                      },
                     ),
-                  ),
-                  actions: [
-                    GestureDetector(
-                      onTap: _logout, // Llama a la función para cerrar sesión
-                      child: const Padding(
-                        padding: EdgeInsets.only(right: 10.0),
-                        child: Icon(
-                          Icons.logout,
+                    backgroundColor: Colors.transparent,
+                    elevation: 0.0,
+                    title: Container(
+                      alignment: Alignment.center,
+                      child: const Text(
+                        "ReportNic",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
                           color: Colors.black,
-                          size: 30, // Tamaño del ícono
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
+                  )),
               Expanded(
                 child: Center(
                   child: Container(

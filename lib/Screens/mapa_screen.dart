@@ -359,6 +359,10 @@ class MapaScreenState extends State<MapScreen> {
                                                   'latitude': _currentPosition!.latitude,
                                                   'longitude': _currentPosition!.longitude,
                                                 },
+                                                'Hospital Coordenadas': {
+                                                  'latitude': hospital['geometry']['coordinates'][1], // Coordenadas del hospital seleccionado
+                                                  'longitude': hospital['geometry']['coordinates'][0], // Coordenada de longitud del hospital seleccionado
+                                                },
                                               },
                                               'details': hospital,
                                             };

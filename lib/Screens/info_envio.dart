@@ -21,6 +21,10 @@ class InfoEnvio extends StatelessWidget {
       'fichaPaciente': fichaPaciente,
       'hospitalSeleccionado': {
         'nombre': hospitalSeleccionado['name'],
+        'coordenadas': {
+          'latitude': hospitalSeleccionado['coordinates']['Hospital Coordenadas']['latitude'],
+          'longitude': hospitalSeleccionado['coordinates']['Hospital Coordenadas']['longitude'],
+        },
       },
       'coordenadasActuales': {
         'latitude': hospitalSeleccionado['coordinates']['Ambulancia Coordenadas']['latitude'],
