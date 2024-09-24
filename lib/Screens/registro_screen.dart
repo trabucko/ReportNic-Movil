@@ -297,6 +297,7 @@ class RegisterScreenState extends State<RegisterScreen> {
     final telefono = _telefonoController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
+    final fechaYHoraActual = DateTime.now();
 
     try {
       // Crear usuario en Firebase Authentication
@@ -306,13 +307,14 @@ class RegisterScreenState extends State<RegisterScreen> {
       );
 
       // Guardar información adicional en Firestore
-      await FirebaseFirestore.instance.collection('usuarios').doc(userCredential.user!.uid).set({
+      await FirebaseFirestore.instance.collection('usuarios_moviles').doc(userCredential.user!.uid).set({
         'nombre': nombre,
         'apellido': apellido,
         'cedula': cedula,
         'telefono': telefono,
         'email': email,
-        'password': password,
+        'contraseña': password,
+        'Fecha de Creacion': fechaYHoraActual,
       });
 
       // Usar Navigator.pushReplacement dentro del contexto válido

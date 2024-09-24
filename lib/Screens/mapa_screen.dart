@@ -308,7 +308,7 @@ class MapaScreenState extends State<MapScreen> {
                 ),
                 const SizedBox(height: 10),
                 if (_isExpanded)
-                  Container(
+                  SizedBox(
                     height: 200, // Ajusta la altura según sea necesario
                     child: nearbyHospitals.isNotEmpty
                         ? ListView.builder(
@@ -355,8 +355,10 @@ class MapaScreenState extends State<MapScreen> {
                                             _selectedHospital = {
                                               'name': hospitalName,
                                               'coordinates': {
-                                                'latitude': latHospital,
-                                                'longitude': lonHospital,
+                                                'Ambulancia Coordenadas': {
+                                                  'latitude': _currentPosition!.latitude,
+                                                  'longitude': _currentPosition!.longitude,
+                                                },
                                               },
                                               'details': hospital,
                                             };

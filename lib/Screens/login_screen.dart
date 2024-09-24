@@ -215,7 +215,7 @@ class LoginScreenState extends State<LoginScreen> {
     final firestore = FirebaseFirestore.instance;
 
     try {
-      final querySnapshot = await firestore.collection('usuarios').where('email', isEqualTo: email).where('password', isEqualTo: password).get();
+      final querySnapshot = await firestore.collection('usuarios_moviles').where('email', isEqualTo: email).where('contraseña', isEqualTo: password).get();
 
       if (mounted) {
         if (querySnapshot.docs.isNotEmpty) {

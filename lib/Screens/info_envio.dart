@@ -21,7 +21,10 @@ class InfoEnvio extends StatelessWidget {
       'fichaPaciente': fichaPaciente,
       'hospitalSeleccionado': {
         'nombre': hospitalSeleccionado['name'],
-        'coordenadas': hospitalSeleccionado['coordinates'],
+      },
+      'coordenadasActuales': {
+        'latitude': hospitalSeleccionado['coordinates']['Ambulancia Coordenadas']['latitude'],
+        'longitude': hospitalSeleccionado['coordinates']['Ambulancia Coordenadas']['longitude'],
       },
       'fechaYHora': fechaYHoraActual,
     });
@@ -150,8 +153,8 @@ class InfoEnvio extends StatelessWidget {
                     const Divider(color: Color(0xFF1E90FF)),
                     _buildFichaRow('Nombre: ', hospitalSeleccionado['name']),
                     _buildFichaRow(
-                      'Coordenadas:  --------------- ',
-                      '${hospitalSeleccionado['coordinates']['latitude']}, ${hospitalSeleccionado['coordinates']['longitude']}',
+                      'Coordenadas Actuales: ',
+                      '${hospitalSeleccionado['coordinates']['Ambulancia Coordenadas']['latitude']}, ${hospitalSeleccionado['coordinates']['Ambulancia Coordenadas']['longitude']}',
                     ),
                   ],
                 ),
