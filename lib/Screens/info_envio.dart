@@ -5,11 +5,13 @@ import 'package:reportnic/Screens/home_screen.dart';
 class InfoEnvio extends StatelessWidget {
   final Map<String, dynamic> fichaPaciente;
   final Map<String, dynamic> hospitalSeleccionado;
+  final String eta;
 
   const InfoEnvio({
     super.key,
     required this.fichaPaciente,
     required this.hospitalSeleccionado,
+    required this.eta,
   });
 
   void _enviarDatos(BuildContext context) async {
@@ -31,6 +33,7 @@ class InfoEnvio extends StatelessWidget {
         'longitude': hospitalSeleccionado['coordinates']['Ambulancia Coordenadas']['longitude'],
       },
       'fechaYHora': fechaYHoraActual,
+      'eta': eta,
     });
 
     if (context.mounted) {

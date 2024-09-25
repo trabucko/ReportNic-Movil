@@ -14,6 +14,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   late VoiceToText _voiceToText;
   bool _isListening = false;
   bool _isEditing = false;
+  bool _isRecording = false;
   String _transcribedText = "Mantén presionado el botón para hablar";
   TextEditingController textEditingController = TextEditingController();
 
@@ -41,6 +42,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
       _voiceToText.startListening();
       setState(() {
         _isListening = true;
+        _isRecording = true; // Activar grabación
       });
     }
   }
@@ -50,6 +52,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
       _voiceToText.stop();
       setState(() {
         _isListening = false;
+        _isRecording = false; // Desactivar grabación
       });
     }
   }
@@ -66,11 +69,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
   }
 
   Future<void> _logout() async {
-    // Lógica de cierre de sesión, por ejemplo, limpiar el estado de autenticación
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', false); // Establece isLoggedIn como false
+    await prefs.setBool('isLoggedIn', false);
 
-    // Navega a la pantalla de login después de un pequeño retraso
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
         Navigator.of(context).pushReplacementNamed('/login');
@@ -82,7 +83,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // Agregar el Drawer
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -100,22 +100,20 @@ class _SpeechScreenState extends State<SpeechScreen> {
               leading: const Icon(Icons.home),
               title: const Text('Inicio'),
               onTap: () {
-                Navigator.pop(context); // Cerrar el Drawer
-                // Lógica para la opción de "Inicio"
+                Navigator.pop(context);
               },
             ),
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Configuración'),
               onTap: () {
-                Navigator.pop(context); // Cerrar el Drawer
-                // Lógica para la opción de "Configuración"
+                Navigator.pop(context);
               },
             ),
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Cerrar sesión'),
-              onTap: _logout, // Lógica para cerrar sesión
+              onTap: _logout,
             ),
           ],
         ),
@@ -133,61 +131,72 @@ class _SpeechScreenState extends State<SpeechScreen> {
                         return IconButton(
                           icon: const Icon(Icons.sort_rounded),
                           onPressed: () {
-                            Scaffold.of(context).openDrawer(); // Abre el Drawer al hacer clic
+                            Scaffold.of(context).openDrawer();
                           },
                         );
                       },
                     ),
-                    backgroundColor: Colors.transparent,
-                    elevation: 0.0,
-                    title: Container(
-                      alignment: Alignment.center,
-                      child: const Text(
-                        "ReportNic",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+                    title: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.63,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "ReportNic",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   )),
               Expanded(
                 child: Center(
                   child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    margin: _isEditing ? const EdgeInsets.symmetric(horizontal: 24, vertical: 60) : const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                     padding: const EdgeInsets.all(16.0),
                     child: IntrinsicHeight(
                       child: _isEditing
-                          ? TextField(
-                              controller: textEditingController,
-                              autofocus: true,
-                              onChanged: (value) {
-                                setState(() {
-                                  _transcribedText = value;
-                                });
-                              },
-                              maxLines: null, // Permite múltiples líneas
-                              minLines: 1, // Altura mínima para el TextField
-                              decoration: InputDecoration(
-                                border: const OutlineInputBorder(),
-                                focusedBorder: const OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                          ? Transform.translate(
+                              offset: const Offset(0, -60),
+                              child: TextField(
+                                controller: textEditingController,
+                                autofocus: true,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _transcribedText = value;
+                                  });
+                                },
+                                maxLines: null,
+                                minLines: 1,
+                                decoration: InputDecoration(
+                                  border: const OutlineInputBorder(),
+                                  focusedBorder: const OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                                  ),
+                                  enabledBorder: const OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                                  ),
+                                  hintText: 'Edita tu mensaje...',
+                                  hintStyle: TextStyle(color: Colors.blue[300]),
                                 ),
-                                enabledBorder: const OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.blue, width: 1.0),
-                                ),
-                                hintText: 'Edita tu mensaje...',
-                                hintStyle: TextStyle(color: Colors.blue[300]),
+                                cursorColor: Colors.blue,
                               ),
-                              cursorColor: Colors.blue,
                             )
-                          : Text(
-                              _transcribedText,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
+                          : Padding(
+                              padding: const EdgeInsets.only(bottom: 120.0),
+                              child: Text(
+                                _isRecording
+                                    ? "Grabando..." // Mostrar "Grabando..." cuando _isRecording sea true
+                                    : _transcribedText,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                     ),
@@ -196,9 +205,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
               ),
             ],
           ),
-          // Botón de micrófono con animación
           Positioned(
-            bottom: 0, // Pega el botón al fondo de la pantalla
+            bottom: 0,
             left: 0,
             right: 0,
             child: Center(
@@ -208,10 +216,10 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 onTapCancel: _stopListening,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
-                  width: _isListening ? 500 : 400, // Ajusta el tamaño cuando está escuchando
+                  width: _isListening ? 500 : 400,
                   height: _isListening ? 130 : 120,
                   decoration: BoxDecoration(
-                    color: _isListening ? Colors.green : Colors.black, // Cambia a verde cuando está escuchando
+                    color: _isListening ? Colors.green : Colors.black,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(100),
                       topRight: Radius.circular(100),
@@ -226,10 +234,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
               ),
             ),
           ),
-          // Botón para editar el texto
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
-            bottom: _isListening ? 130 : 120, // Mueve el botón cuando se activa el micrófono
+            bottom: _isListening ? 130 : 120,
             left: 16,
             child: FloatingActionButton(
               onPressed: _toggleEditMode,
@@ -241,10 +248,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
               ),
             ),
           ),
-          // Botón de enviar
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
-            bottom: _isListening ? 130 : 120, // Mueve el botón cuando se activa el micrófono
+            bottom: _isListening ? 130 : 120,
             right: 16,
             child: FloatingActionButton(
               heroTag: null,
@@ -252,12 +258,15 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 if (_transcribedText.isNotEmpty) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => FichaPacienteScreen(transcribedText: _transcribedText),
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => FichaPacienteScreen(transcribedText: _transcribedText),
+                      transitionDuration: const Duration(milliseconds: 500),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(opacity: animation, child: child);
+                      },
                     ),
                   );
                 } else {
-                  // Muestra un mensaje si el texto está vacío
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('No hay texto transcrito para enviar')),
                   );

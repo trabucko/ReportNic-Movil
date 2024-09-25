@@ -42,15 +42,20 @@ class MapaScreenState extends State<MapScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 98, 108, 250)), // Cambia el color del botón a azul
 
-              onPressed: () {
+              onPressed: () async {
+                final latHospital = nearbyHospitals[index]['geometry']['coordinates'][1];
+                final lonHospital = nearbyHospitals[index]['geometry']['coordinates'][0];
+                final eta = await _calculateETA(latHospital, lonHospital);
+
                 setState(() {
                   _selectedHospital = {
                     'name': hospitalName,
                     'coordinates': {
-                      'latitude': nearbyHospitals[index]['geometry']['coordinates'][1],
-                      'longitude': nearbyHospitals[index]['geometry']['coordinates'][0],
+                      'latitude': latHospital,
+                      'longitude': lonHospital,
                     },
                     'details': nearbyHospitals[index],
+                    'eta': eta, // Guarda el ETA en la variable _selectedHospital
                   };
                 });
                 onConfirm();
@@ -204,6 +209,7 @@ class MapaScreenState extends State<MapScreen> {
           0.0,
           3.0
         ],
+        // ignore: deprecated_member_use
         textColor: const Color.fromARGB(255, 65, 73, 186).value,
       );
 
@@ -345,13 +351,12 @@ class MapaScreenState extends State<MapScreen> {
                                       trailing: nearbyHospitals[index]['selected'] == true ? const Icon(Icons.check, color: Colors.green) : null,
                                       onTap: () {
                                         final hospitalName = nearbyHospitals[index]['text'];
-                                        _showConfirmationDialog(index, hospitalName, () {
+                                        _showConfirmationDialog(index, hospitalName, () async {
+                                          final latHospital = nearbyHospitals[index]['geometry']['coordinates'][1];
+                                          final lonHospital = nearbyHospitals[index]['geometry']['coordinates'][0];
+                                          final eta = await _calculateETA(latHospital, lonHospital);
+
                                           setState(() {
-                                            // Cambia el estado de selección
-                                            for (var h in nearbyHospitals) {
-                                              h['selected'] = false;
-                                            } // Deselecciona otros
-                                            nearbyHospitals[index]['selected'] = true; // Selecciona el hospital actual
                                             _selectedHospital = {
                                               'name': hospitalName,
                                               'coordinates': {
@@ -360,19 +365,24 @@ class MapaScreenState extends State<MapScreen> {
                                                   'longitude': _currentPosition!.longitude,
                                                 },
                                                 'Hospital Coordenadas': {
-                                                  'latitude': hospital['geometry']['coordinates'][1], // Coordenadas del hospital seleccionado
-                                                  'longitude': hospital['geometry']['coordinates'][0], // Coordenada de longitud del hospital seleccionado
+                                                  'latitude': latHospital,
+                                                  'longitude': lonHospital,
                                                 },
                                               },
-                                              'details': hospital,
+                                              'details': nearbyHospitals[index],
+                                              'eta': eta, // Guarda el ETA en la variable _selectedHospital
                                             };
                                           });
+                                          // Accede al ETA del hospital seleccionado
+                                          // Puedes utilizar el ETA aquí
                                           Navigator.push(
+                                            // ignore: use_build_context_synchronously
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) => InfoEnvio(
                                                 fichaPaciente: fichaPaciente,
                                                 hospitalSeleccionado: _selectedHospital!,
+                                                eta: eta, // Pasa el ETA como parámetro
                                               ),
                                             ),
                                           );

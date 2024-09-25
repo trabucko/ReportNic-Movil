@@ -319,21 +319,15 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
 }
 
 
-/* ElevatedButton(
-              onPressed: saveAndNavigate,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ), // Ajuste del padding del botón
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min, // Ajusta el tamaño del botón al contenido
-                children: [
-                  Text(
-                    'Siguiente',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(width: 8), // Espacio entre el texto y el ícono
-                  Icon(Icons.arrow_forward, color: Colors.white),*/
+/* 
+Navigator.push(
+  context,
+  PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => FichaPacienteScreen(transcribedText: _transcribedText),
+    transitionDuration: const Duration(milliseconds: 500),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(opacity: animation, child: child);
+    },
+  ),
+);
+*/
