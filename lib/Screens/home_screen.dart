@@ -219,7 +219,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
                   width: _isListening ? 500 : 400,
                   height: _isListening ? 130 : 120,
                   decoration: BoxDecoration(
-                    color: _isListening ? Colors.green : Colors.black,
+                    color: _isListening ? Colors.blue : Colors.black,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(100),
                       topRight: Radius.circular(100),

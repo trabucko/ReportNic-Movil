@@ -19,12 +19,29 @@ class LoginScreenState extends State<LoginScreen> {
   String? _errorMessage;
   bool _obscurePassword = true; // Variable para controlar la visibilidad de la contraseña
 
-  final List<String> _unidadesAmbulancia = [
-    'Unidad 101',
-    'Unidad 102',
-    'Unidad 103',
-    'Unidad 104'
-  ];
+  List<String> _unidadesAmbulancia = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUnidadesAmbulancia();
+  }
+
+  bool _isLoading = false;
+
+  Future<void> _loadUnidadesAmbulancia() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final firestore = FirebaseFirestore.instance;
+    final querySnapshot = await firestore.collection('ambulancias').get();
+
+    setState(() {
+      _unidadesAmbulancia = querySnapshot.docs.map((doc) => doc.get('codigo') as String).toList();
+      _isLoading = false; // Esto no es suficiente, debemos llamar a setState nuevamente
+    });
+    setState(() {}); // Esto actualizará la interfaz de usuario
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +148,7 @@ class LoginScreenState extends State<LoginScreen> {
                   DropdownButtonFormField<String>(
                     decoration: const InputDecoration(
                       icon: Icon(Icons.local_hospital, color: Color(0xFF007ACC)), // Ícono de ambulancia
-                      labelText: 'Unidad de Ambulancia',
+                      labelText: 'Unidades de Ambulancia',
                       labelStyle: TextStyle(
                         fontFamily: 'Jost',
                         color: Color(0xFF007ACC),
@@ -142,12 +159,16 @@ class LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     value: _selectedUnidad,
-                    items: _unidadesAmbulancia.map((unidad) {
-                      return DropdownMenuItem<String>(
-                        value: unidad,
-                        child: Text(unidad),
-                      );
-                    }).toList(),
+                    items: _isLoading
+                        ? [
+                            const DropdownMenuItem(child: Text('Cargando...')),
+                          ]
+                        : _unidadesAmbulancia.map((unidad) {
+                            return DropdownMenuItem<String>(
+                              value: unidad,
+                              child: Text(unidad),
+                            );
+                          }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedUnidad = value;

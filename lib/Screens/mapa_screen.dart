@@ -254,7 +254,7 @@ class MapaScreenState extends State<MapScreen> {
   }
 
   int _getTrafficDelay(int currentHour) {
-    if (currentHour >= 6 && currentHour < 12) return 3;
+    if (currentHour >= 6 && currentHour < 14) return 3;
     if (currentHour >= 15 && currentHour < 16) return 5;
     if (currentHour >= 17 && currentHour < 21) return 8;
     return 5; // Horas fuera de pico

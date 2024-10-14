@@ -1,16 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:reportnic/Screens/email_verification_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
   RegisterScreenState createState() => RegisterScreenState();
+}
+
+class CedulaInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    final String newText = newValue.text.toUpperCase().replaceAll(RegExp(r'[^0-9A-Za-z]'), '');
+    final String formattedText = _formatCedula(newText);
+
+    return newValue.copyWith(
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: formattedText.length),
+    );
+  }
+
+  String _formatCedula(String value) {
+    final StringBuffer buffer = StringBuffer();
+    final int length = value.length;
+
+    if (length <= 3) {
+      buffer.write(value);
+    } else if (length <= 9) {
+      buffer.write('${value.substring(0, 3)}-${value.substring(3)}');
+    } else if (length <= 14) {
+      buffer.write('${value.substring(0, 3)}-${value.substring(3, 9)}-${value.substring(9)}');
+    } else {
+      buffer.write('${value.substring(0, 3)}-${value.substring(3, 9)}-${value.substring(9, 14)}');
+    }
+
+    return buffer.toString();
+  }
 }
 
 class RegisterScreenState extends State<RegisterScreen> {
@@ -32,6 +60,9 @@ class RegisterScreenState extends State<RegisterScreen> {
   String? _emailError;
   String? _passwordError;
   String? _confirmPasswordError;
+
+  final PageController _pageController = PageController();
+  int currentPage = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -62,225 +93,81 @@ class RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
-                  // Campo para Nombre
-                  TextFormField(
-                    controller: _nombreController,
-                    decoration: InputDecoration(
-                      labelText: 'Nombre',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Jost',
-                        color: Color(0xFF007ACC),
-                      ),
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF007ACC)),
-                      ),
-                      errorText: _nombreError,
+                  Container(
+                    height: 400,
+                    child: PageView(
+                      controller: _pageController,
+                      onPageChanged: (page) {
+                        setState(() {
+                          currentPage = page;
+                        });
+                      },
+                      children: [
+                        _buildPage1(),
+                        _buildPage2(),
+                      ],
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor ingresa tu nombre';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Campo para Apellido
-                  TextFormField(
-                    controller: _apellidoController,
-                    decoration: InputDecoration(
-                      labelText: 'Apellido',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Jost',
-                        color: Color(0xFF007ACC),
-                      ),
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF007ACC)),
-                      ),
-                      errorText: _apellidoError,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor ingresa tu apellido';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Campo para Cédula de Identidad
-// Campo para Cédula de Identidad
-                  TextFormField(
-                    controller: _cedulaController,
-                    decoration: InputDecoration(
-                      labelText: 'Cédula de Identidad',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Jost',
-                        color: Color(0xFF007ACC),
-                      ),
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF007ACC)),
-                      ),
-                      errorText: _cedulaError,
-                    ),
-                    keyboardType: TextInputType.text,
-                    inputFormatters: [
-                      // Permitir letras y números
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9A-Za-z]')),
-                      CedulaInputFormatter(),
-                    ],
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor ingresa tu cédula de identidad';
-                      }
-                      if (!_isCedulaValid(value)) {
-                        return 'Cédula de identidad inválida';
-                      }
-                      return null;
-                    },
                   ),
 
                   const SizedBox(height: 20),
 
-                  // Campo para Teléfono
-                  TextFormField(
-                    controller: _telefonoController,
-                    decoration: InputDecoration(
-                      labelText: 'Teléfono',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Jost',
-                        color: Color(0xFF007ACC),
+                  // Mostrar el botón de "Siguiente" solo en la primera página
+                  // Mostrar el botón de "Siguiente" solo en la primera página
+                  // Mostrar el botón de "Siguiente" solo en la primera página
+                  if (currentPage == 0)
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF007ACC),
+                        minimumSize: const Size(double.infinity, 50),
                       ),
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF007ACC)),
-                      ),
-                      errorText: _telefonoError,
-                    ),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor ingresa tu número de teléfono';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
+                      onPressed: () {
+                        if (_formKey.currentState?.validate() == true) {
+                          final cedula = _cedulaController.text.trim();
+                          final cedulaValida = _isCedulaValid(cedula);
 
-                  // Campo para Correo Electrónico
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: 'Correo Electrónico',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Jost',
-                        color: Color(0xFF007ACC),
-                      ),
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF007ACC)),
-                      ),
-                      errorText: _emailError,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor ingresa tu correo electrónico';
-                      }
-                      if (!EmailValidator.validate(value)) {
-                        return 'Por favor ingresa un correo electrónico válido';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Campo para Contraseña
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: InputDecoration(
-                      labelText: 'Contraseña',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Jost',
-                        color: Color(0xFF007ACC),
-                      ),
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF007ACC)),
-                      ),
-                      errorText: _passwordError,
-                    ),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor ingresa una contraseña';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Campo para Confirmar Contraseña
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    decoration: InputDecoration(
-                      labelText: 'Confirmar Contraseña',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Jost',
-                        color: Color(0xFF007ACC),
-                      ),
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF007ACC)),
-                      ),
-                      errorText: _confirmPasswordError,
-                    ),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor confirma tu contraseña';
-                      }
-                      if (value != _passwordController.text) {
-                        return 'Las contraseñas no coinciden';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 30),
-
-                  // Botón de registro
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF007ACC),
-                      minimumSize: const Size(double.infinity, 50),
-                    ),
-                    onPressed: () async {
-                      if (_formKey.currentState?.validate() == true) {
-                        final cedula = _cedulaController.text.trim();
-                        final cedulaValida = _isCedulaValid(cedula);
-
-                        if (cedulaValida) {
-                          _register();
-                        } else {
-                          setState(() {
-                            _cedulaError = 'Cédula de identidad inválida';
-                          });
+                          if (cedulaValida) {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          } else {
+                            setState(() {
+                              _cedulaError = 'Cédula de identidad inválida';
+                            });
+                          }
                         }
-                      }
-                    },
-                    child: const Text(
-                      'Registrarse',
-                      style: TextStyle(
-                        fontFamily: 'Jost',
-                        color: Colors.white,
-                        fontSize: 18,
+                      },
+                      child: const Text(
+                        'Siguiente',
+                        style: TextStyle(
+                          fontFamily: 'Jost',
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
+
+// Mostrar el botón de "Registrar" solo en la segunda página
+                  if (currentPage == 1)
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF007ACC),
+                        minimumSize: const Size(double.infinity, 50),
+                      ),
+                      onPressed: () {
+                        if (_formKey.currentState?.validate() == true) {
+                          _register();
+                        }
+                      },
+                      child: const Text(
+                        'Registrar',
+                        style: TextStyle(
+                          fontFamily: 'Jost',
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -290,6 +177,179 @@ class RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  Widget _buildPage1() {
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        _buildTextField(
+          label: 'Nombre',
+          controller: _nombreController,
+          errorText: _nombreError,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Por favor ingresa tu nombre';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 20),
+        _buildTextField(
+          label: 'Apellido',
+          controller: _apellidoController,
+          errorText: _apellidoError,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Por favor ingresa tu apellido';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 20),
+        _buildTextField(
+          label: 'Cédula de Identidad',
+          controller: _cedulaController,
+          errorText: _cedulaError,
+          keyboardType: TextInputType.text,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9A-Za-z]')),
+            CedulaInputFormatter(),
+          ],
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Por favor ingresa tu cédula de identidad';
+            }
+            if (!_isCedulaValid(value)) {
+              return 'Cédula de identidad inválida';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 20),
+        _buildTextField(
+          label: 'Teléfono',
+          controller: _telefonoController,
+          errorText: _telefonoError,
+          keyboardType: TextInputType.phone,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Por favor ingresa tu número de teléfono';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPage2() {
+    return Column(
+      children: [
+        _buildTextField(
+          label: 'Correo Electrónico',
+          controller: _emailController,
+          errorText: _emailError,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Por favor ingresa tu correo electrónico';
+            }
+            if (!EmailValidator.validate(value)) {
+              return 'Por favor ingresa un correo electrónico válido';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 20),
+        _buildTextField(
+          label: 'Contraseña',
+          controller: _passwordController,
+          errorText: _passwordError,
+          obscureText: true,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Por favor ingresa una contraseña';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 20),
+        _buildTextField(
+          label: 'Confirmar Contraseña',
+          controller: _confirmPasswordController,
+          errorText: _confirmPasswordError,
+          obscureText: true,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Por favor confirma tu contraseña';
+            }
+            if (value != _passwordController.text) {
+              return 'Las contraseñas no coinciden';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 30),
+      ],
+    );
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    String? errorText,
+    TextInputType keyboardType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters,
+    bool obscureText = false,
+    required String? Function(String?) validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.grey),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: TextFormField(
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: label,
+                labelStyle: const TextStyle(
+                  fontFamily: 'Jost',
+                  color: Color(0xFF007ACC),
+                ),
+                border: InputBorder.none,
+              ),
+              keyboardType: keyboardType,
+              inputFormatters: inputFormatters,
+              obscureText: obscureText,
+              validator: validator,
+            ),
+          ),
+        ),
+        if (errorText != null && errorText.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 5.0),
+            child: Text(
+              errorText,
+              style: const TextStyle(
+                color: Colors.red,
+                fontSize: 12,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // Método para validar la cédula
+  bool _isCedulaValid(String cedula) {
+    final RegExp cedulaRegex = RegExp(r'^\d{3}-\d{6}-\d{4}[A-Z]$');
+    return cedulaRegex.hasMatch(cedula);
+  }
+
+  // Método para registrar el usuario
   void _register() async {
     final nombre = _nombreController.text.trim();
     final apellido = _apellidoController.text.trim();
@@ -300,91 +360,56 @@ class RegisterScreenState extends State<RegisterScreen> {
     final fechaYHoraActual = DateTime.now();
 
     try {
-      // Crear usuario en Firebase Authentication
       final UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Guardar información adicional en Firestore
-      await FirebaseFirestore.instance.collection('usuarios_moviles').doc(userCredential.user!.uid).set({
-        'nombre': nombre,
-        'apellido': apellido,
-        'cedula': cedula,
-        'telefono': telefono,
-        'email': email,
-        'contraseña': password,
-        'Fecha de Creacion': fechaYHoraActual,
-      });
+      // Enviar verificación de correo
+      userCredential.user?.sendEmailVerification();
 
-      // Usar Navigator.pushReplacement dentro del contexto válido
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) {
-          // Verificar que el contexto aún esté montado
-          Navigator.of(context).pushReplacementNamed('/login');
-        }
-      });
-    } catch (e) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) {
-          // Verificar que el contexto aún esté montado
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error en el registro')),
-          );
-        }
-      });
-    }
-  }
+      // Navegar a la pantalla de verificación
+      final verified = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EmailVerificationScreen(
+            email: email,
+            nombre: nombre,
+            apellido: apellido,
+            cedula: cedula,
+            telefono: telefono,
+            password: password,
+            fechaYHoraActual: fechaYHoraActual,
+          ),
+        ),
+      );
 
-  Future<bool> verificarCedula(String cedula) async {
-    try {
-      final response = await http.get(Uri.parse('https://api.example.com/verify_cedula?cedula=$cedula'));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data['valid'] == true;
-      } else {
-        throw Exception('Error al verificar la cédula');
+      if (!verified) {
+        _showErrorDialog('Por favor verifica tu correo electrónico');
       }
     } catch (e) {
-      return false;
+      _showErrorDialog('Ocurrió un error, por favor intenta nuevamente');
     }
   }
 
-  bool _isCedulaValid(String cedula) {
-    // Validar cédula con formato XXX-XXXXXX-XXXXX y última X siendo una letra
-    final RegExp cedulaRegex = RegExp(r'^\d{3}-\d{6}-\d{4}[A-Z]$');
-    return cedulaRegex.hasMatch(cedula);
-  }
-}
-
-// Formato de entrada para cédula
-class CedulaInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    final String newText = newValue.text.toUpperCase().replaceAll(RegExp(r'[^0-9A-Za-z]'), '');
-    final String formattedText = _formatCedula(newText);
-
-    return newValue.copyWith(
-      text: formattedText,
-      selection: TextSelection.collapsed(offset: formattedText.length),
+  // Método para mostrar un diálogo de error
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Aceptar'),
+            ),
+          ],
+        );
+      },
     );
-  }
-
-  String _formatCedula(String value) {
-    final StringBuffer buffer = StringBuffer();
-    final int length = value.length;
-
-    if (length <= 3) {
-      buffer.write(value);
-    } else if (length <= 9) {
-      buffer.write('${value.substring(0, 3)}-${value.substring(3)}');
-    } else if (length <= 14) {
-      buffer.write('${value.substring(0, 3)}-${value.substring(3, 9)}-${value.substring(9)}');
-    } else {
-      buffer.write('${value.substring(0, 3)}-${value.substring(3, 9)}-${value.substring(9, 14)}');
-    }
-
-    return buffer.toString();
   }
 }

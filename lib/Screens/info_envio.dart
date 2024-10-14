@@ -17,9 +17,8 @@ class InfoEnvio extends StatelessWidget {
   void _enviarDatos(BuildContext context) async {
     final firestore = FirebaseFirestore.instance;
     final fechaYHoraActual = DateTime.now();
-    final emergenciaId = await _getEmergenciaId();
 
-    await firestore.collection('Emergencias').doc('Emergencia $emergenciaId').set({
+    await firestore.collection('Emergencias').add({
       'fichaPaciente': fichaPaciente,
       'hospitalSeleccionado': {
         'nombre': hospitalSeleccionado['name'],
@@ -40,7 +39,7 @@ class InfoEnvio extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Emergencia enviada'),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.blue,
         ),
       );
 
@@ -50,33 +49,25 @@ class InfoEnvio extends StatelessWidget {
     }
   }
 
-  Future<int> _getEmergenciaId() async {
-    final firestore = FirebaseFirestore.instance;
-    final enviosRef = firestore.collection('Emergencias');
-    final querySnapshot = await enviosRef.get();
-    final emergenciaId = querySnapshot.docs.length + 1;
-    return emergenciaId;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leadingWidth: 8, // Ajusta este valor para reducir el espacio
+        leadingWidth: 8,
         foregroundColor: Colors.black,
         backgroundColor: Colors.white,
         title: Container(
           alignment: Alignment.center,
-          width: double.infinity, // Tomar todo el ancho
+          width: double.infinity,
           child: const Text(
             'Información de Envío',
             style: TextStyle(color: Colors.black),
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Flecha de retroceso
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pop(); // Volver a la pantalla anterior
+            Navigator.of(context).pop();
           },
         ),
       ),
@@ -86,12 +77,11 @@ class InfoEnvio extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 1), // Espacio adicional
-            // Encabezado personalizado
+            const SizedBox(height: 1),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 16.0),
               decoration: BoxDecoration(
-                color: Colors.blue[300], // Azul suave
+                color: Colors.blue[300],
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(12.0)),
               ),
               alignment: Alignment.center,
@@ -114,7 +104,7 @@ class InfoEnvio extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start, // Alinear a la izquierda
                   children: [
                     const Text(
                       'Información del Paciente',
@@ -144,7 +134,7 @@ class InfoEnvio extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start, // Alinear a la izquierda
                   children: [
                     Container(
                       alignment: Alignment.center,

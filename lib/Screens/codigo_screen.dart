@@ -197,7 +197,7 @@ class _CodigoScreenState extends State<CodigoScreen> {
                 ),
                 const SizedBox(height: 50),
                 const Text(
-                  'Si desea registrarse como paramédico, deberá ingresar el código dado por un administrador de su unidad de salud.',
+                  'Si desea registrarse como paramédico, deberá ingresar el código dado por un administrador de ReportNic.',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.blueGrey,
@@ -241,8 +241,8 @@ class _CodigoScreenState extends State<CodigoScreen> {
                       content: const Text(
                         'Para registrarse como paramédico, necesita un código proporcionado por un administrador. '
                         'Este código es único y se utiliza para que usted pueda registrarse en nuestra plataforma. Si usted '
-                        'no ha recibido un código antes de registrarse en ReportNic, por favor comuníquese con el administrador '
-                        'de su unidad de salud. Si tiene problemas con el registro, por favor comuníquese con el soporte técnico.'
+                        'no ha recibido un código antes de registrarse en ReportNic, por favor comuníquese con uno de los administradores '
+                        'de ReportNic. Si tiene problemas con el registro, por favor comuníquese con el soporte técnico.'
                         '\n\nAtentamente, Soporte de ReportNic.',
                         style: TextStyle(color: Colors.black54),
                       ),
