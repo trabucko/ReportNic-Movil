@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Importa SharedPreferences
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,7 +14,6 @@ class LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
   String? _selectedUnidad;
   String? _errorMessage;
   bool _obscurePassword = true; // Variable para controlar la visibilidad de la contraseña
@@ -223,42 +222,56 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Guardar el estado de inicio de sesión en SharedPreferences
-  Future<void> _saveLoginState() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', true);
-  }
-
   Future<void> _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
-
-    final firestore = FirebaseFirestore.instance;
+    final unidadAmbulancia = _selectedUnidad;
 
     try {
-      final querySnapshot = await firestore.collection('usuarios_moviles').where('email', isEqualTo: email).where('contraseña', isEqualTo: password).get();
+      // Iniciar sesión con Firebase Auth
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-      if (mounted) {
-        if (querySnapshot.docs.isNotEmpty) {
-          // Guardar el estado de inicio de sesión
-          await _saveLoginState();
+      User? user = userCredential.user;
 
-          // Autenticación exitosa: Navegar a la pantalla principal
-          if (mounted) {
-            Navigator.pushReplacementNamed(context, '/home');
-          }
+      if (user != null) {
+        final firestore = FirebaseFirestore.instance;
+        final querySnapshot = await firestore.collection('usuarios_moviles').doc(user.uid).get();
+
+        if (querySnapshot.exists) {
+          final usuarioData = querySnapshot.data();
+          final idParamedico = usuarioData?['IdParamedico'];
+          final nombreParamedico = usuarioData?['nombre'] ?? 'Paramédico';
+          final apellidoParamedico = usuarioData?['apellido'] ?? 'Apellido';
+
+// VOLVER A HACERLO CON SHARED PREFERENCE U OTRA COSA , EN CASO DE QUE DECIDAS NO VOLVER A HACERLO , PONE UNA CONDICIONAL DE QUE SI NO SE OPTIENEN ESOS DATOS IMPORTANTES NO HAGAS NADA PASES DIRECTO AL HOME
+          // Crear un nuevo documento en la colección Turnos
+          final turnoData = {
+            'IdParamedico': idParamedico,
+            'nombre': nombreParamedico,
+            'apellido': apellidoParamedico,
+            'Unidad de Ambulancia': unidadAmbulancia,
+            'Inicio de Turno': FieldValue.serverTimestamp(),
+            'enTurno': true,
+          };
+
+          await firestore.collection('Turnos').add(turnoData);
+
+          // Navegar a la pantalla principal
+          // ignore: use_build_context_synchronously
+          Navigator.pushReplacementNamed(context, '/home');
         } else {
           setState(() {
-            _errorMessage = 'Correo electrónico o contraseña incorrectos';
+            _errorMessage = 'Usuario no encontrado en Firestore';
           });
         }
       }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = 'Error al iniciar sesión';
-        });
-      }
+      setState(() {
+        _errorMessage = 'Correo electrónico o contraseña incorrectos';
+      });
     }
   }
 }

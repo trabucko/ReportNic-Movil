@@ -45,6 +45,7 @@ class EmailVerificationScreen extends StatefulWidget {
   final String telefono;
   final String password;
   final DateTime fechaYHoraActual;
+  final dynamic idParamedico;
 
   const EmailVerificationScreen({
     super.key,
@@ -55,6 +56,7 @@ class EmailVerificationScreen extends StatefulWidget {
     required this.telefono,
     required this.password,
     required this.fechaYHoraActual,
+    required this.idParamedico,
   });
 
   @override
@@ -93,6 +95,7 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
       if (user.emailVerified) {
         // Encriptar la contraseña usando la nueva función
+        // ignore: unused_local_variable
         final encryptedPassword = encryptPassword(widget.password);
 
         // Completar el registro en Firestore
@@ -102,9 +105,10 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
           'cedula': widget.cedula,
           'telefono': widget.telefono,
           'email': widget.email,
-          'contraseña': encryptedPassword, // Subir la contraseña encriptada
+          'contraseña': widget.password, // Subir la contraseña encriptada
           'Fecha de Creacion': widget.fechaYHoraActual,
           'emailVerified': true,
+          'IdParamedico': widget.idParamedico,
         });
 
         setState(() {
@@ -197,7 +201,7 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 const Icon(
                   Icons.check_circle,
                   size: 100,
-                  color: Colors.green, // Icono verde
+                  color: Colors.white, // Icono verde
                 ),
                 const SizedBox(height: 20),
                 const Text(

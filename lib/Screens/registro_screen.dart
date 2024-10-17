@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -93,7 +94,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Container(
+                  SizedBox(
                     height: 400,
                     child: PageView(
                       controller: _pageController,
@@ -358,6 +359,7 @@ class RegisterScreenState extends State<RegisterScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final fechaYHoraActual = DateTime.now();
+    final idParamedico = await getNextParamedicoID();
 
     try {
       final UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -370,6 +372,7 @@ class RegisterScreenState extends State<RegisterScreen> {
 
       // Navegar a la pantalla de verificación
       final verified = await Navigator.push(
+        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(
           builder: (context) => EmailVerificationScreen(
@@ -380,6 +383,7 @@ class RegisterScreenState extends State<RegisterScreen> {
             telefono: telefono,
             password: password,
             fechaYHoraActual: fechaYHoraActual,
+            idParamedico: idParamedico,
           ),
         ),
       );
@@ -387,8 +391,26 @@ class RegisterScreenState extends State<RegisterScreen> {
       if (!verified) {
         _showErrorDialog('Por favor verifica tu correo electrónico');
       }
-    } catch (e) {
-      _showErrorDialog('Ocurrió un error, por favor intenta nuevamente');
+      // ignore: empty_catches
+    } catch (e) {}
+  }
+
+  Future<String> getNextParamedicoID() async {
+    final snapshot = await FirebaseFirestore.instance.collection('usuarios_moviles').orderBy('IdParamedico', descending: true).limit(1).get();
+
+    if (snapshot.docs.isEmpty) {
+      return '001'; // If there are no records, start from '001'
+    } else {
+      final lastDocId = snapshot.docs.first.get('IdParamedico');
+
+      // Try to parse the last ID as an integer
+      try {
+        final lastIdNumber = int.parse(lastDocId); // Convert the ID to a number
+        final newIdNumber = lastIdNumber + 1; // Increment the ID
+        return newIdNumber.toString().padLeft(3, '0'); // Format to 3 digits
+      } catch (e) {
+        return '001'; // Fallback if there is an error
+      }
     }
   }
 

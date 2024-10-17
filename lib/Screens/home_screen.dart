@@ -1,5 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:voice_to_text/voice_to_text.dart';
 import './ficha_screen.dart';
 
@@ -15,6 +16,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
   bool _isListening = false;
   bool _isEditing = false;
   bool _isRecording = false;
+  String? paramedicoNombre; // Aquí almacenaremos el nombre del paramédico
+  String? paramedicoApellido;
+  String? unidadAmbulancia;
   String _transcribedText = "Mantén presionado el botón para hablar";
   TextEditingController textEditingController = TextEditingController();
 
@@ -68,10 +72,27 @@ class _SpeechScreenState extends State<SpeechScreen> {
     });
   }
 
+  // MODIFICAR EL METODO LOGOUT TAMBIEN DE QUE SI NO SE ENCONTRO LO DE TURNOS , SI QUEDO ESPERANDO QUE SIGA CON LO SUYO , O VOLVES A QUITAS TOD0 LO QUE TENGA QUE VER COON TURNOS
   Future<void> _logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', false);
+    final firestore = FirebaseFirestore.instance;
+    final turnosCollection = firestore.collection('Turnos');
 
+    // Obtener el documento del turno actual del usuario
+    final querySnapshot = await turnosCollection.where('enTurno', isEqualTo: true).get();
+    final turnDocument = querySnapshot.docs.first;
+
+    // Actualizar el documento del turno para establecer enTurno a false y agregar el campo Final de Turno
+    await turnDocument.reference.update({
+      'enTurno': false,
+      'Final de Turno': FieldValue.serverTimestamp(),
+    });
+
+    // Eliminar datos de Secure Storage
+
+    // Cerrar sesión en Firebase
+    await FirebaseAuth.instance.signOut();
+
+    // Navegar a la pantalla de inicio de sesión
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
         Navigator.of(context).pushReplacementNamed('/login');
@@ -87,13 +108,28 @@ class _SpeechScreenState extends State<SpeechScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
+            DrawerHeader(
+              decoration: const BoxDecoration(
                 color: Colors.black,
               ),
-              child: Text(
-                'Opciones',
-                style: TextStyle(color: Colors.white, fontSize: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Aquí mostramos el nombre y apellido del paramédico
+                  const Text(
+                    'Paramedico',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '${paramedicoNombre ?? 'Paramédico'} ${paramedicoApellido ?? 'Apellido'}',
+                    style: const TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ],
               ),
             ),
             ListTile(
@@ -112,7 +148,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Cerrar sesión'),
+              title: const Text('Terminar Turno Y Cerrar Sesión'),
               onTap: _logout,
             ),
           ],
@@ -123,35 +159,36 @@ class _SpeechScreenState extends State<SpeechScreen> {
           Column(
             children: [
               Container(
-                  height: 80,
-                  color: Colors.transparent,
-                  child: AppBar(
-                    leading: Builder(
-                      builder: (context) {
-                        return IconButton(
-                          icon: const Icon(Icons.sort_rounded),
-                          onPressed: () {
-                            Scaffold.of(context).openDrawer();
-                          },
-                        );
-                      },
-                    ),
-                    title: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.63,
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "ReportNic",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                height: 80,
+                color: Colors.transparent,
+                child: AppBar(
+                  leading: Builder(
+                    builder: (context) {
+                      return IconButton(
+                        icon: const Icon(Icons.sort_rounded),
+                        onPressed: () {
+                          Scaffold.of(context).openDrawer();
+                        },
+                      );
+                    },
+                  ),
+                  title: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.63,
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'ReportNic', // Mostrar el nombre cuando esté disponible
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  )),
+                  ),
+                ),
+              ),
               Expanded(
                 child: Center(
                   child: Container(
