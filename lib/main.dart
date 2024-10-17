@@ -1,17 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Importa este paquete para modificar la barra de estado
+import 'package:flutter/services.dart';
 import 'Screens/splash_screen.dart';
-import 'Screens/login_screen.dart'; // Importa la pantalla de login
+import 'Screens/login_screen.dart';
 import 'Screens/registro_screen.dart';
 import './Screens/codigo_screen.dart';
-import 'firebase_options.dart'; // Importa la librería para trabajar con la base de datos
+import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart'; // Importa Provider
-import 'services/auth_service.dart'; // Asegúrate de importar el archivo donde está AuthState
+import 'package:provider/provider.dart';
+import 'services/auth_service.dart';
 import 'Screens/home_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart'; // Asegúrate de tener este paquete instalado
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,21 +28,16 @@ void main() async {
     systemNavigationBarColor: Colors.transparent,
   ));
 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
   runApp(
     ChangeNotifierProvider(
       create: (context) => AuthState(),
-      child: MyApp(isLoggedIn: isLoggedIn),
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final bool isLoggedIn;
-
-  const MyApp({super.key, required this.isLoggedIn});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -65,14 +59,14 @@ class MyApp extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.active) {
             User? user = snapshot.data;
             if (user != null && user.emailVerified) {
-              // Email verification is successful, update the UI
+              // Si el usuario está autenticado y su correo está verificado
               return const SpeechScreen();
             } else {
-              // Email verification is not successful, show the verification screen
-              return isLoggedIn ? const LoginScreen() : const SplashScreen();
+              // Si el usuario no está autenticado o no ha verificado su correo
+              return const LoginScreen();
             }
           } else {
-            // Show a loading screen while waiting for the authentication state
+            // Muestra una pantalla de carga mientras se espera el estado de autenticación
             return const SplashScreen();
           }
         },

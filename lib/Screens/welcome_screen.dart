@@ -60,8 +60,8 @@ class WelcomeScreenState extends State<WelcomeScreen> {
               ),
               _buildPage(
                 color: Colors.grey[900]!,
-                title: 'Ambulancia en tiempo real',
-                description: 'La aplicación al notificar al hospital , comparte datos de ubicacion en tiempo real , esto permite visualizar de manera precisa que tan lejos o cerca esta la ambulancia del hospital.',
+                title: 'Coordenadas de Ambulancia',
+                description: 'La aplicación al notificar al hospital , comparte datos de ubicacion Actual , esto permite visualizar de manera precisa que tan lejos o cerca esta la ambulancia del hospital.',
                 image: 'assets/img/logo_amarillo.png',
                 titleColor: Colors.white,
                 descriptionColor: Colors.white,
