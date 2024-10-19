@@ -79,6 +79,16 @@ class MapaScreenState extends State<MapScreen> {
 
   void _onMapCreated(MapboxMap mapboxMap) {
     _mapboxMap = mapboxMap;
+
+    // Mueve la cámara a Nicaragua
+    _mapboxMap!.flyTo(
+      CameraOptions(
+        center: Point(coordinates: Position(-85.207229, 12.865416)), // Longitud, Latitud
+        zoom: 6.0, // Ajusta el zoom según sea necesario
+      ),
+      MapAnimationOptions(duration: 1500),
+    );
+
     if (_currentPosition != null) {
       _moveCameraToCurrentPosition();
       _addMarker();
