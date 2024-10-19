@@ -10,21 +10,25 @@ class WelcomeScreen extends StatefulWidget {
 
 class WelcomeScreenState extends State<WelcomeScreen> {
   final PageController _pageController = PageController();
+
   final ValueNotifier<Color> _indicatorColorNotifier = ValueNotifier<Color>(Colors.white);
+
   final ValueNotifier<Color> _skipButtonColorNotifier = ValueNotifier<Color>(Colors.white);
 
   @override
   void initState() {
     super.initState();
+
     _pageController.addListener(() {
       int pageIndex = _pageController.page?.round() ?? 0;
+
       setState(() {
         if (pageIndex == 1) {
-          _indicatorColorNotifier.value = Colors.black; // Color para la página blanca
-          _skipButtonColorNotifier.value = Colors.black; // Color del texto "Omitir" en la página blanca
+          _indicatorColorNotifier.value = Colors.black;
+          _skipButtonColorNotifier.value = Colors.black;
         } else {
-          _indicatorColorNotifier.value = Colors.white; // Color para las otras páginas
-          _skipButtonColorNotifier.value = Colors.white; // Color del texto "Omitir" en otras páginas
+          _indicatorColorNotifier.value = Colors.white;
+          _skipButtonColorNotifier.value = Colors.white;
         }
       });
     });
@@ -60,8 +64,8 @@ class WelcomeScreenState extends State<WelcomeScreen> {
               ),
               _buildPage(
                 color: Colors.grey[900]!,
-                title: 'Ambulancia en tiempo real',
-                description: 'La aplicación al notificar al hospital , comparte datos de ubicacion en tiempo real , esto permite visualizar de manera precisa que tan lejos o cerca esta la ambulancia del hospital.',
+                title: 'Ubicacion Actual',
+                description: 'La aplicación al notificar al hospital , comparte la ubicacion actual del paramedico, esto permite visualizar de manera precisa que tan lejos o cerca esta la ambulancia del hospital.',
                 image: 'assets/img/logo_amarillo.png',
                 titleColor: Colors.white,
                 descriptionColor: Colors.white,
@@ -122,7 +126,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                         padding: const EdgeInsets.all(20.0),
                         child: TextButton(
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/login'); // Asegúrate de definir la ruta '/tokenscreen'
+                            Navigator.pushReplacementNamed(context, '/login');
                           },
                           child: Text(
                             'Omitir',
@@ -173,16 +177,16 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                     padding: const EdgeInsets.all(40.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/login'); // Asegúrate de definir la ruta '/codigo_screen'
+                        Navigator.pushReplacementNamed(context, '/login');
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.black,
-                        backgroundColor: Colors.amber, // Color del texto del botón
+                        backgroundColor: Colors.amber,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30), // Radio de borde del botón
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15), // Padding interno
-                        elevation: 5, // Sombra del botón
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        elevation: 5,
                       ),
                       child: const Text(
                         'Comenzar',

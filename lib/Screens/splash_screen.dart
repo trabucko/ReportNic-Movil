@@ -37,22 +37,19 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
   }
 
   Future<void> _preloadResourcesAndNavigate() async {
-    // Obtener SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool hasSeenWelcomeScreen = prefs.getBool('hasSeenWelcomeScreen') ?? false;
 
-    // Iniciar la animación
     _controller.forward().then((_) {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) {
               if (!hasSeenWelcomeScreen) {
-                // Marca que la pantalla de bienvenida ha sido vista
                 prefs.setBool('hasSeenWelcomeScreen', true);
                 return const WelcomeScreen();
               } else {
-                return const LoginScreen(); // Cambia esto por la pantalla que debería mostrarse a los usuarios que ya han visto el WelcomeScreen
+                return const LoginScreen();
               }
             },
             transitionsBuilder: (context, animation, secondaryAnimation, child) {

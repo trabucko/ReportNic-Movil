@@ -22,6 +22,9 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
   String? apellidosError;
   String? edadError;
 
+  // Nueva variable para el switch
+  bool isSwitchOn = false; // Variable para manejar el estado del switch
+
   // Función para incrementar el valor de la presión arterial
   void incrementValue(TextEditingController controller) {
     int currentValue = int.tryParse(controller.text) ?? 0;
@@ -51,23 +54,26 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
       edadError = null;
 
       // Validar los campos
-      if (nombreController.text.isEmpty) {
-        nombreError = "El nombre no puede estar vacío.";
-      }
-      if (apellidosController.text.isEmpty) {
-        apellidosError = "Los apellidos no pueden estar vacíos.";
-      }
-      if (edadController.text.isEmpty) {
-        edadError = "La edad no puede estar vacía.";
+      if (!isSwitchOn) {
+        // Solo validar si el switch está apagado
+        if (nombreController.text.isEmpty) {
+          nombreError = "El nombre no puede estar vacío.";
+        }
+        if (apellidosController.text.isEmpty) {
+          apellidosError = "Los apellidos no pueden estar vacíos.";
+        }
+        if (edadController.text.isEmpty) {
+          edadError = "La edad no puede estar vacía.";
+        }
       }
 
       // Si no hay errores, continuar con la navegación
       if (nombreError == null && apellidosError == null && edadError == null) {
         // Crear un mapa con la información del paciente
         Map<String, dynamic> fichaPaciente = {
-          'nombre': nombreController.text,
-          'apellidos': apellidosController.text,
-          'edad': edadController.text,
+          'nombre': isSwitchOn ? 'Desconocido...' : nombreController.text,
+          'apellidos': isSwitchOn ? 'Desconocido...' : apellidosController.text,
+          'edad': isSwitchOn ? 'Desconocido...' : edadController.text,
           'presionSistolica': systolicController.text,
           'presionDiastolica': diastolicController.text,
           'afectaciones': widget.transcribedText,
@@ -92,10 +98,15 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ficha de Paciente'),
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
         elevation: 0,
+        title: const Padding(
+          padding: EdgeInsets.only(left: 40.0), // Ajusta el valor según sea necesario
+          child: Text(
+            'Ficha de Paciente',
+            style: TextStyle(color: Colors.black),
+          ),
+        ),
       ),
       backgroundColor: Colors.grey[100],
       body: Stack(
@@ -103,9 +114,8 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
           SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Tarjeta combinada con fecha, hora de emergencia y datos del paciente
                 Card(
                   color: Colors.white,
                   elevation: 4,
@@ -114,11 +124,12 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Fecha y hora
+                        // Fecha y hora centrados
                         Text('Fecha: $formattedDate', style: const TextStyle(fontSize: 16)),
                         const SizedBox(height: 8),
                         Text('Hora de Emergencia: $formattedTime', style: const TextStyle(fontSize: 16)),
                         const SizedBox(height: 16),
+
                         // Formulario de datos personales
                         TextField(
                           controller: nombreController,
@@ -128,6 +139,13 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
                             border: const OutlineInputBorder(),
                             errorText: nombreError, // Mostrar error
                           ),
+                          enabled: !isSwitchOn, // Deshabilitar si el switch está activado
+                          readOnly: isSwitchOn, // Leer solo si el switch está activado
+                          onTap: () {
+                            if (isSwitchOn) {
+                              nombreController.text = 'Desconocido...';
+                            }
+                          },
                         ),
                         const SizedBox(height: 16),
                         TextField(
@@ -138,6 +156,13 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
                             border: const OutlineInputBorder(),
                             errorText: apellidosError, // Mostrar error
                           ),
+                          enabled: !isSwitchOn, // Deshabilitar si el switch está activado
+                          readOnly: isSwitchOn, // Leer solo si el switch está activado
+                          onTap: () {
+                            if (isSwitchOn) {
+                              apellidosController.text = 'Desconocido...';
+                            }
+                          },
                         ),
                         const SizedBox(height: 16),
                         TextField(
@@ -148,21 +173,42 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
                             border: const OutlineInputBorder(),
                             errorText: edadError, // Mostrar error
                           ),
+                          enabled: !isSwitchOn, // Deshabilitar si el switch está activado
+                          readOnly: isSwitchOn, // Leer solo si el switch está activado
+                          onTap: () {
+                            if (isSwitchOn) {
+                              edadController.text = 'Desconocido...';
+                            }
+                          },
                           keyboardType: TextInputType.number,
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Sección de presión arterial
-                Card(
-                  color: Colors.white,
-                  elevation: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
+                        const SizedBox(height: 16),
+
+                        // Sección de switch
+                        // Sección de switch
+                        SwitchListTile(
+                          title: const Text('Paciente desconocido'),
+                          value: isSwitchOn,
+                          onChanged: (bool value) {
+                            setState(() {
+                              isSwitchOn = value; // Actualizar el estado del switch
+                              if (isSwitchOn) {
+                                // Rellenar los campos con 'Desconocido...' si el switch está activado
+                                nombreController.text = 'Desconocido...';
+                                apellidosController.text = 'Desconocido...';
+                                edadController.text = 'Desconocido...';
+                              } else {
+                                // Limpiar los campos si el switch está desactivado
+                                nombreController.clear();
+                                apellidosController.clear();
+                                edadController.clear();
+                              }
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Sección de presión arterial
                         const Center(
                           child: Text(
                             'Presión Arterial',
@@ -268,30 +314,36 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
+
                 // Sección de afectaciones
                 Card(
                   color: Colors.white,
                   elevation: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Afectaciones',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          widget.transcribedText.isEmpty ? 'Sin afectaciones' : widget.transcribedText,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ],
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Afectaciones',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            widget.transcribedText.isEmpty ? 'Sin afectaciones' : widget.transcribedText,
+                            style: const TextStyle(fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -317,17 +369,3 @@ class FichaPacienteScreenState extends State<FichaPacienteScreen> {
     );
   }
 }
-
-
-/* 
-Navigator.push(
-  context,
-  PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => FichaPacienteScreen(transcribedText: _transcribedText),
-    transitionDuration: const Duration(milliseconds: 500),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(opacity: animation, child: child);
-    },
-  ),
-);
-*/

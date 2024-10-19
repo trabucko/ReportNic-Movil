@@ -79,7 +79,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/img/logo_azul.png', // Asegúrate de que la ruta de la imagen sea correcta
+                    'assets/img/logo_azul.png',
                     width: 60,
                     height: 40,
                   ),
@@ -109,12 +109,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
-                  // Mostrar el botón de "Siguiente" solo en la primera página
-                  // Mostrar el botón de "Siguiente" solo en la primera página
-                  // Mostrar el botón de "Siguiente" solo en la primera página
                   if (currentPage == 0)
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -147,8 +142,6 @@ class RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
-
-// Mostrar el botón de "Registrar" solo en la segunda página
                   if (currentPage == 1)
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -399,22 +392,20 @@ class RegisterScreenState extends State<RegisterScreen> {
     final snapshot = await FirebaseFirestore.instance.collection('usuarios_moviles').orderBy('IdParamedico', descending: true).limit(1).get();
 
     if (snapshot.docs.isEmpty) {
-      return '001'; // If there are no records, start from '001'
+      return '001';
     } else {
       final lastDocId = snapshot.docs.first.get('IdParamedico');
 
-      // Try to parse the last ID as an integer
       try {
-        final lastIdNumber = int.parse(lastDocId); // Convert the ID to a number
-        final newIdNumber = lastIdNumber + 1; // Increment the ID
-        return newIdNumber.toString().padLeft(3, '0'); // Format to 3 digits
+        final lastIdNumber = int.parse(lastDocId);
+        final newIdNumber = lastIdNumber + 1;
+        return newIdNumber.toString().padLeft(3, '0');
       } catch (e) {
-        return '001'; // Fallback if there is an error
+        return '001';
       }
     }
   }
 
-  // Método para mostrar un diálogo de error
   void _showErrorDialog(String message) {
     showDialog(
       context: context,

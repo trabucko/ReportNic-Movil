@@ -1,8 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
+//Servicios de Authenticacion
+
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+//creacion de cuentas en firebase Authentication
 
   Future<String?> createAccount(String correo, String pass) async {
     try {
@@ -23,6 +27,7 @@ class AuthService {
     return null;
   }
 
+//Inicio de Sesion con Email en Firebase Auth
   Future<String?> signInWithEmail(String email, String password) async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
@@ -43,6 +48,8 @@ class AuthService {
     }
   }
 }
+
+//Funcion para detectar el estado de la sesion en firebase
 
 class AuthState with ChangeNotifier {
   bool _isLoggedIn = false;

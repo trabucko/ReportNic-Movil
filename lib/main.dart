@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Importa el paquete
 import 'Screens/splash_screen.dart';
 import 'Screens/login_screen.dart';
 import 'Screens/registro_screen.dart';
@@ -10,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'services/auth_service.dart';
 import 'Screens/home_screen.dart';
+import 'Screens/welcome_screen.dart'; // Importa la pantalla de bienvenida
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 void main() async {
@@ -36,8 +38,39 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State<MyApp> {
+  bool _showSplash = true;
+  bool _showWelcomeScreen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFirstLaunch();
+    Future.delayed(const Duration(seconds: 3), () {
+      setState(() {
+        _showSplash = false;
+      });
+    });
+  }
+
+  Future<void> _checkFirstLaunch() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? isFirstLaunch = prefs.getBool('isFirstLaunch');
+    if (isFirstLaunch == null || isFirstLaunch) {
+      setState(() {
+        _showWelcomeScreen = true;
+      });
+      // Setear el valor a false para que no se muestre de nuevo
+      await prefs.setBool('isFirstLaunch', false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,27 +86,28 @@ class MyApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            User? user = snapshot.data;
-            if (user != null && user.emailVerified) {
-              // Si el usuario está autenticado y su correo está verificado
-              return const SpeechScreen();
-            } else {
-              // Si el usuario no está autenticado o no ha verificado su correo
-              return const LoginScreen();
-            }
-          } else {
-            // Muestra una pantalla de carga mientras se espera el estado de autenticación
-            return const SplashScreen();
-          }
-        },
-      ),
+      home: _showSplash
+          ? const SplashScreen()
+          : _showWelcomeScreen
+              ? const WelcomeScreen() // Muestra la pantalla de bienvenida
+              : StreamBuilder<User?>(
+                  stream: FirebaseAuth.instance.authStateChanges(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.active) {
+                      User? user = snapshot.data;
+                      if (user != null && user.emailVerified) {
+                        return const SpeechScreen();
+                      } else {
+                        return const LoginScreen();
+                      }
+                    } else {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  },
+                ),
       routes: {
         '/login': (context) => const LoginScreen(),
-        '/tokenscreen': (context) => const CodigoScreen(),
+        '/codigoScreen': (context) => const CodigoScreen(),
         '/registroScreen': (context) => const RegisterScreen(),
         '/home': (context) => const SpeechScreen(),
       },

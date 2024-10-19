@@ -117,7 +117,7 @@ class InfoEnvio extends StatelessWidget {
                     const Divider(color: Color(0xFF1E90FF)),
                     _buildFichaRow('Nombre', fichaPaciente['nombre']),
                     _buildFichaRow('Apellidos', fichaPaciente['apellidos']),
-                    _buildFichaRow('Edad', '${fichaPaciente['edad']} años'),
+                    _buildFichaRow('Edad', '${fichaPaciente['edad']}  años'),
                     _buildFichaRow('Presión Sistólica', '${fichaPaciente['presionSistolica']} mmHg'),
                     _buildFichaRow('Presión Diastólica', '${fichaPaciente['presionDiastolica']} mmHg'),
                     _buildFichaRowLargo('Afectaciones', fichaPaciente['afectaciones']),
