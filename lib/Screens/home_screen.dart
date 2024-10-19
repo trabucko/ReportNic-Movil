@@ -103,7 +103,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _isRecording ? Colors.blue : Colors.white, // Cambiar color de fondo de la aplicación
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -115,7 +115,6 @@ class _SpeechScreenState extends State<SpeechScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Aquí mostramos el nombre y apellido del paramédico
                   const Text(
                     'Paramedico',
                     style: TextStyle(
@@ -178,7 +177,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'ReportNic', // Mostrar el nombre cuando esté disponible
+                          'ReportNic',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
@@ -194,6 +193,10 @@ class _SpeechScreenState extends State<SpeechScreen> {
                   child: Container(
                     margin: _isEditing ? const EdgeInsets.symmetric(horizontal: 24, vertical: 60) : const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                     padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: _isRecording ? Colors.blue : Colors.white, // Cambiar color de fondo
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: IntrinsicHeight(
                       child: _isEditing
                           ? Transform.translate(
@@ -220,6 +223,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
                                   hintStyle: TextStyle(color: Colors.blue[300]),
                                 ),
                                 cursorColor: Colors.blue,
+                                style: TextStyle(color: _isRecording ? Colors.white : Colors.black), // Cambiar color del texto
                               ),
                             )
                           : Padding(
@@ -229,9 +233,9 @@ class _SpeechScreenState extends State<SpeechScreen> {
                                     ? "Grabando..." // Mostrar "Grabando..." cuando _isRecording sea true
                                     : _transcribedText,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 24,
-                                  color: Colors.black,
+                                  color: _isRecording ? Colors.white : Colors.black, // Cambiar color del texto
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -256,7 +260,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
                   width: _isListening ? 500 : 400,
                   height: _isListening ? 130 : 120,
                   decoration: BoxDecoration(
-                    color: _isListening ? Colors.blue : Colors.black,
+                    color: _isListening ? const Color.fromARGB(255, 12, 65, 108) : Colors.black, // Cambiar color de fondo
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(100),
                       topRight: Radius.circular(100),
